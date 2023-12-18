@@ -8,8 +8,9 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureDependencyInjection()
+    configureStatusPages()
     configureSerialization()
     configureSecurity()
-    configureDatabases()
     configureRouting()
 }
