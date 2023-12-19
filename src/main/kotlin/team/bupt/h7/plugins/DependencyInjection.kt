@@ -6,6 +6,8 @@ import io.ktor.server.application.*
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import team.bupt.h7.database.DatabaseManager
+import team.bupt.h7.services.PlaceSeekerService
+import team.bupt.h7.services.PlaceSeekerServiceImpl
 import team.bupt.h7.services.UserService
 import team.bupt.h7.services.UserServiceImpl
 
@@ -18,5 +20,6 @@ fun Application.configureDependencyInjection() {
 val appModule = module {
     single { DatabaseManager.database }
     single<UserService> { UserServiceImpl(get()) }
+    single<PlaceSeekerService> { PlaceSeekerServiceImpl(get()) }
     single<Dotenv> { dotenv() }
 }
