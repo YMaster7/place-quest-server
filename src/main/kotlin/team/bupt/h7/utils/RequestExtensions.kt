@@ -4,6 +4,8 @@ import io.ktor.http.*
 import kotlinx.datetime.Instant
 import team.bupt.h7.models.PlaceSeekerQueryParams
 import team.bupt.h7.models.PlaceSeekerStatus
+import team.bupt.h7.models.WelcomeOfferQueryParams
+import team.bupt.h7.models.WelcomeOfferStatus
 
 fun Parameters.toPlaceSeekerQueryParams(): PlaceSeekerQueryParams {
     return PlaceSeekerQueryParams(
@@ -16,6 +18,17 @@ fun Parameters.toPlaceSeekerQueryParams(): PlaceSeekerQueryParams {
         createdAtRange = this["createdAtRange"]?.paramToInstantRange(),
         updatedAtRange = this["updatedAtRange"]?.paramToInstantRange(),
         statusList = this.getAll("statusList")?.map { PlaceSeekerStatus.valueOf(it) }
+    )
+}
+
+fun Parameters.toWelcomeOfferQueryParams(): WelcomeOfferQueryParams {
+    return WelcomeOfferQueryParams(
+        userId = this["userId"]?.toLongOrNull(),
+        seekerId = this["seekerId"]?.toLongOrNull(),
+        offerDescriptionPattern = this["offerDescriptionPattern"],
+        createTimeRange = this["createTimeRange"]?.paramToInstantRange(),
+        updateTimeRange = this["updateTimeRange"]?.paramToInstantRange(),
+        statusList = this.getAll("statusList")?.map { WelcomeOfferStatus.valueOf(it) }
     )
 }
 
