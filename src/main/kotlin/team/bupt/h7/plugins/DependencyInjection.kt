@@ -15,7 +15,7 @@ fun Application.configureDependencyInjection() {
 }
 
 val appModule = module {
-    single { DatabaseManager.database }
+    single { DatabaseManager.create() }
     single<UserService> { UserServiceImpl(get()) }
     single<PlaceSeekerService> { PlaceSeekerServiceImpl(get()) }
     single<WelcomeOfferService> { WelcomeOfferServiceImpl(get()) }

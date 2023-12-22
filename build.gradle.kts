@@ -41,6 +41,7 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("io.ktor:ktor-server-status-pages:2.2.4")
     implementation("io.ktor:ktor-server-cors:2.2.4")
+    implementation("com.zaxxer:HikariCP:5.1.0")
     testImplementation("io.ktor:ktor-server-tests-jvm:2.2.4")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
 }
