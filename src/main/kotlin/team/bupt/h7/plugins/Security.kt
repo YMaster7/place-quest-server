@@ -10,7 +10,7 @@ import org.koin.ktor.ext.inject
 
 fun Application.configureSecurity() {
     val dotenv by inject<Dotenv>()
-    val jwtSecret = dotenv["JWT_SECRET"] ?: error("JWT_SECRET not specified")
+    val jwtSecret = dotenv["JWT_SECRET"]!!
     authentication {
         jwt {
             // TODO: add issuer and audience

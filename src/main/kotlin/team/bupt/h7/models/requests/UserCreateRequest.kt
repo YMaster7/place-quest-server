@@ -1,9 +1,10 @@
-package team.bupt.h7.models
+package team.bupt.h7.models.requests
 
 import kotlinx.serialization.Serializable
+import team.bupt.h7.models.entities.DocumentType
 
 @Serializable
-data class UserRegisterRequest(
+data class UserCreateRequest(
     val username: String,
     val password: String,
     val realName: String? = null,

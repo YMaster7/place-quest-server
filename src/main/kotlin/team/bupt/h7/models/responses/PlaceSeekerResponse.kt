@@ -1,11 +1,13 @@
-package team.bupt.h7.models
+package team.bupt.h7.models.responses
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toKotlinInstant
 import kotlinx.serialization.Serializable
+import team.bupt.h7.models.entities.PlaceSeeker
+import team.bupt.h7.models.entities.PlaceSeekerStatus
 
 @Serializable
-data class PlaceSeekerDto(
+data class PlaceSeekerResponse(
     val seekerId: Long?,
     val userId: Long?,
     val destinationType: String?,
@@ -18,9 +20,9 @@ data class PlaceSeekerDto(
     val status: PlaceSeekerStatus?
 )
 
-fun PlaceSeeker.toDto() = PlaceSeekerDto(
+fun PlaceSeeker.toResponse() = PlaceSeekerResponse(
     seekerId = seekerId,
-    userId = user.id,
+    userId = user.userId,
     destinationType = destinationType,
     seekerTitle = seekerTitle,
     seekerDescription = seekerDescription,

@@ -1,4 +1,4 @@
-package team.bupt.h7.models
+package team.bupt.h7.models.requests
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable

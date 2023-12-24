@@ -1,11 +1,15 @@
-package team.bupt.h7.models
+package team.bupt.h7.models.responses
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toKotlinInstant
 import kotlinx.serialization.Serializable
+import team.bupt.h7.models.entities.DocumentType
+import team.bupt.h7.models.entities.User
+import team.bupt.h7.models.entities.UserLevel
+import team.bupt.h7.models.entities.UserType
 
 @Serializable
-data class UserDto(
+data class UserResponse(
     val id: Long?,
     val username: String?,
     val password: String?,
@@ -23,8 +27,8 @@ data class UserDto(
     val updateTime: Instant?
 )
 
-fun User.toAdminDto() = UserDto(
-    id = id,
+fun User.toAdminResponse() = UserResponse(
+    id = userId,
     username = username,
     password = null,
     userType = userType,
@@ -41,8 +45,8 @@ fun User.toAdminDto() = UserDto(
     updateTime = updateTime.toKotlinInstant()
 )
 
-fun User.toSelfDto() = UserDto(
-    id = id,
+fun User.toSelfResponse() = UserResponse(
+    id = userId,
     username = username,
     password = null,
     userType = userType,
@@ -59,7 +63,7 @@ fun User.toSelfDto() = UserDto(
     updateTime = updateTime.toKotlinInstant()
 )
 
-fun User.toBasicDto() = UserDto(
+fun User.toBasicResponse() = UserResponse(
     id = null,
     username = username,
     password = null,

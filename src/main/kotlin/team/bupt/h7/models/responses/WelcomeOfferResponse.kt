@@ -1,11 +1,13 @@
-package team.bupt.h7.models
+package team.bupt.h7.models.responses
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toKotlinInstant
 import kotlinx.serialization.Serializable
+import team.bupt.h7.models.entities.WelcomeOffer
+import team.bupt.h7.models.entities.WelcomeOfferStatus
 
 @Serializable
-data class WelcomeOfferDto(
+data class WelcomeOfferResponse(
     val offerId: Long?,
     val userId: Long?,
     val seekerId: Long?,
@@ -15,9 +17,9 @@ data class WelcomeOfferDto(
     val status: WelcomeOfferStatus?
 )
 
-fun WelcomeOffer.toDto() = WelcomeOfferDto(
+fun WelcomeOffer.toResponse() = WelcomeOfferResponse(
     offerId = offerId,
-    userId = user.id,
+    userId = user.userId,
     seekerId = seeker.seekerId,
     offerDescription = offerDescription,
     createTime = createTime.toKotlinInstant(),

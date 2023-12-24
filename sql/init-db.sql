@@ -1,7 +1,7 @@
-drop table if exists users;
+drop table if exists users cascade;
 create table users
 (
-    id                bigserial primary key,
+    user_id bigserial primary key,
     username          varchar(255) not null,
     password          varchar(255) not null,
     user_type         varchar(255) not null,
@@ -18,11 +18,11 @@ create table users
     update_time       timestamp    not null
 );
 
-drop table if exists place_seekers;
+drop table if exists place_seekers cascade;
 create table place_seekers
 (
     seeker_id          bigserial primary key,
-    user_id            bigint references users (id) on delete cascade,
+    user_id bigint references users (user_id) on delete cascade,
     destination_type   varchar(255) not null,
     seeker_title       varchar(255) not null,
     seeker_description text         not null,
@@ -33,11 +33,11 @@ create table place_seekers
     status             varchar(255) not null
 );
 
-drop table if exists welcome_offers;
+drop table if exists welcome_offers cascade;
 create table welcome_offers
 (
     offer_id          bigserial primary key,
-    user_id           bigint references users (id) on delete cascade,
+    user_id     bigint references users (user_id) on delete cascade,
     seeker_id   bigint references place_seekers (seeker_id) on delete cascade,
     offer_description text         not null,
     create_time timestamp not null,
@@ -45,7 +45,7 @@ create table welcome_offers
     status            varchar(255) not null
 );
 
-drop table if exists seek_place_deals;
+drop table if exists seek_place_deals cascade;
 create table seek_place_deals
 (
     deal_id      bigserial primary key,

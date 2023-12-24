@@ -2,95 +2,70 @@ package team.bupt.h7.routes
 
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.koin.ktor.ext.inject
-import team.bupt.h7.exceptions.AuthorizationException
-import team.bupt.h7.models.WelcomeOfferCreateRequest
-import team.bupt.h7.models.WelcomeOfferUpdateRequest
-import team.bupt.h7.models.toDto
+import team.bupt.h7.exceptions.InvalidUrlParametersException
+import team.bupt.h7.models.requests.WelcomeOfferCreateRequest
+import team.bupt.h7.models.requests.WelcomeOfferUpdateRequest
+import team.bupt.h7.models.responses.toResponse
 import team.bupt.h7.services.WelcomeOfferService
+import team.bupt.h7.utils.getUserIdFromToken
 import team.bupt.h7.utils.toWelcomeOfferQueryParams
 
-fun Route.welcomeOfferRouting() {
-    val welcomeOfferService: WelcomeOfferService by inject()
-
-    route("/welcomeOffers") {
-        get("/") {
-            val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-            val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull() ?: 10
-            val queryParams = call.request.queryParameters.toWelcomeOfferQueryParams()
-            val welcomeOffers = welcomeOfferService.getWelcomeOffers(page, pageSize, queryParams)
-            call.respond(welcomeOffers.map { it.toDto() })
+fun Route.welcomeOfferRouting(welcomeOfferService: WelcomeOfferService) {
+    route("/offers") {
+        get {
+            val page = call.request.queryParameters["page"]?.toInt() ?: 1
+            val pageSize = call.request.queryParameters["page_size"]?.toInt() ?: 10
+            val params = call.request.queryParameters.toWelcomeOfferQueryParams()
+            val welcomeOffers = welcomeOfferService.queryWelcomeOffers(page, pageSize, params)
+            call.respond(welcomeOffers.map { it.toResponse() })
         }
 
-        get("/{welcomeOfferId}") {
-            val welcomeOfferId = call.parameters["welcomeOfferId"]?.toLongOrNull()
-                ?: throw IllegalArgumentException("Invalid welcome offer id.")
-            val welcomeOffer = welcomeOfferService.getWelcomeOfferById(welcomeOfferId)
-                ?: throw IllegalArgumentException("Welcome offer not found.")
-            call.respond(welcomeOffer.toDto())
+        get("/{id}") {
+            val id = call.parameters["id"]?.toLong()
+                ?: throw InvalidUrlParametersException()
+            val welcomeOffer = welcomeOfferService.getWelcomeOfferById(id)
+            call.respond(welcomeOffer.toResponse())
         }
 
         authenticate {
-            post("/") {
-                val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asLong()
-                    ?: throw AuthorizationException()
+            post {
+                val userId = call.getUserIdFromToken()
                 val request = call.receive<WelcomeOfferCreateRequest>()
                 val welcomeOffer = welcomeOfferService.createWelcomeOffer(userId, request)
-                call.respond(welcomeOffer.toDto())
+                call.respond(welcomeOffer.toResponse())
             }
 
             get("/mine") {
-                val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asLong()
-                    ?: throw AuthorizationException()
-                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
-                val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull() ?: 10
-                val queryParams = call.request.queryParameters.toWelcomeOfferQueryParams()
-                val queryParamsWithUserId = queryParams.copy(userId = userId)
+                val userId = call.getUserIdFromToken()
+                val page = call.request.queryParameters["page"]?.toInt() ?: 1
+                val pageSize = call.request.queryParameters["page_size"]?.toInt() ?: 10
+                val params = call.request.queryParameters.toWelcomeOfferQueryParams()
+
+                val paramsWithUserId = params.copy(userId = userId)
                 val welcomeOffers =
-                    welcomeOfferService.getWelcomeOffers(page, pageSize, queryParamsWithUserId)
-                call.respond(welcomeOffers.map { it.toDto() })
+                    welcomeOfferService.queryWelcomeOffers(page, pageSize, paramsWithUserId)
+                call.respond(welcomeOffers.map { it.toResponse() })
             }
 
-            route("/{welcomeOfferId}") {
-                patch {
-                    val userId =
-                        call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asLong()
-                            ?: throw AuthorizationException()
-                    val welcomeOfferId = call.parameters["welcomeOfferId"]?.toLongOrNull()
-                        ?: throw IllegalArgumentException("Invalid welcome offer id.")
-                    val welcomeOffer = welcomeOfferService.getWelcomeOfferById(welcomeOfferId)
-                        ?: throw IllegalArgumentException("Welcome offer not found.")
-                    if (welcomeOffer.user.id != userId) {
-                        throw AuthorizationException()
-                    }
-                    val request = call.receive<WelcomeOfferUpdateRequest>()
-                    val updatedWelcomeOffer =
-                        welcomeOfferService.updateWelcomeOffer(welcomeOfferId, request)
-                            ?: throw IllegalArgumentException("Welcome offer not found.")
-                    call.respond(updatedWelcomeOffer.toDto())
-                }
+            patch("/{id}") {
+                val userId = call.getUserIdFromToken()
+                val id = call.parameters["id"]?.toLong()
+                    ?: throw InvalidUrlParametersException()
+                val request = call.receive<WelcomeOfferUpdateRequest>()
+                val updatedWelcomeOffer =
+                    welcomeOfferService.updateWelcomeOffer(userId, id, request)
+                call.respond(updatedWelcomeOffer.toResponse())
+            }
 
-                delete {
-                    val userId =
-                        call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asLong()
-                            ?: throw AuthorizationException()
-                    val welcomeOfferId = call.parameters["welcomeOfferId"]?.toLongOrNull()
-                        ?: throw IllegalArgumentException("Invalid welcome offer id.")
-                    val welcomeOffer = welcomeOfferService.getWelcomeOfferById(welcomeOfferId)
-                        ?: throw IllegalArgumentException("Welcome offer not found.")
-                    if (welcomeOffer.user.id != userId) {
-                        throw AuthorizationException()
-                    }
-                    val success = welcomeOfferService.cancelWelcomeOffer(welcomeOfferId)
-                    if (!success) {
-                        throw IllegalArgumentException("Welcome offer not found.")
-                    }
-                    call.respond(mapOf("success" to true))
-                }
+            delete("/{id}") {
+                val userId = call.getUserIdFromToken()
+                val id = call.parameters["id"]?.toLong()
+                    ?: throw InvalidUrlParametersException()
+                val welcomeOffer = welcomeOfferService.cancelWelcomeOffer(userId, id)
+                call.respond(welcomeOffer.toResponse())
             }
         }
     }

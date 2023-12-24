@@ -1,45 +1,45 @@
-package team.bupt.h7.models
+package team.bupt.h7.dao
 
 import org.ktorm.database.Database
-import org.ktorm.entity.Entity
-import org.ktorm.entity.sequenceOf
+import org.ktorm.dsl.eq
+import org.ktorm.entity.*
 import org.ktorm.schema.*
-import java.time.Instant
+import team.bupt.h7.models.entities.DocumentType
+import team.bupt.h7.models.entities.User
+import team.bupt.h7.models.entities.UserLevel
+import team.bupt.h7.models.entities.UserType
 
-interface User : Entity<User> {
-    companion object : Entity.Factory<User>()
+class UserDao(private val database: Database) {
+    fun createUser(user: User): User {
+        database.users.add(user)
+        return user
+    }
 
-    val id: Long
-    var username: String
-    var password: String
-    var userType: UserType
-    var realName: String
-    var documentType: DocumentType
-    var documentNumber: String
-    var phoneNumber: String
-    var userLevel: UserLevel
-    var bio: String
-    var region: String
-    var district: String
-    var country: String
-    var registrationTime: Instant
-    var updateTime: Instant
-}
+    fun getUserById(userId: Long): User? {
+        return database.users.find { it.userId eq userId }
+    }
 
-enum class UserType {
-    NORMAL, ADMIN
-}
+    fun getUserByUsername(username: String): User? {
+        return database.users.find { it.username eq username }
+    }
 
-enum class DocumentType {
-    ID_CARD, PASSPORT
-}
+    fun updateUser(user: User): User {
+        database.users.update(user)
+        return user
+    }
 
-enum class UserLevel {
-    REGULAR, VIP
+    fun queryUsers(page: Int, pageSize: Int): List<User> {
+        val offset = (page - 1) * pageSize
+        return database.users.drop(offset).take(pageSize).toList()
+    }
+
+    fun getUserCount(): Int {
+        return database.users.count()
+    }
 }
 
 object Users : Table<User>("users") {
-    val id = long("id").primaryKey().bindTo { it.id }
+    val userId = long("user_id").primaryKey().bindTo { it.userId }
     val username = varchar("username").bindTo { it.username }
     val password = varchar("password").bindTo { it.password }
     val userType = enum<UserType>("user_type").bindTo { it.userType }

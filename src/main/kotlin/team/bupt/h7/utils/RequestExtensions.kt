@@ -2,10 +2,10 @@ package team.bupt.h7.utils
 
 import io.ktor.http.*
 import kotlinx.datetime.Instant
-import team.bupt.h7.models.PlaceSeekerQueryParams
-import team.bupt.h7.models.PlaceSeekerStatus
-import team.bupt.h7.models.WelcomeOfferQueryParams
-import team.bupt.h7.models.WelcomeOfferStatus
+import team.bupt.h7.models.entities.PlaceSeekerStatus
+import team.bupt.h7.models.entities.WelcomeOfferStatus
+import team.bupt.h7.models.requests.PlaceSeekerQueryParams
+import team.bupt.h7.models.requests.WelcomeOfferQueryParams
 
 fun Parameters.toPlaceSeekerQueryParams(): PlaceSeekerQueryParams {
     return PlaceSeekerQueryParams(
