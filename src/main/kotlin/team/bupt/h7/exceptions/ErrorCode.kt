@@ -23,4 +23,9 @@ enum class ErrorCode(val errorCode: String, val errorMessage: String) {
         "The requested welcome offer could not be found."
     ),
     UserNotOwner("USER_NOT_OWNER", "The user is not the owner of the resource."),
+    WelcomeOfferNotActive("OFFER_NOT_ACTIVE", "You can only accept or decline active offers."),
+    PlaceSeekerNotActive(
+        "PLACE_SEEKER_NOT_ACTIVE",
+        "The corresponding place seeker is not active."
+    ),
 }

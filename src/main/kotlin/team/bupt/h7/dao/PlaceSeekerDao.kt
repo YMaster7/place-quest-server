@@ -19,11 +19,15 @@ class PlaceSeekerDao(private val database: Database) {
         database.placeSeekers.add(placeSeeker)
 
         // to retrieve the auto-generated columns
-        return database.placeSeekers.find { it.seekerId eq placeSeeker.seekerId }!!
+        val seeker = database.placeSeekers.find { it.seekerId eq placeSeeker.seekerId }!!
+        checkAndUpdateStatusIfExpired(seeker)
+        return seeker
     }
 
     fun getPlaceSeekerById(placeSeekerId: Long): PlaceSeeker? {
-        return database.placeSeekers.find { it.seekerId eq placeSeekerId }
+        val seeker = database.placeSeekers.find { it.seekerId eq placeSeekerId }
+        seeker?.let { checkAndUpdateStatusIfExpired(it) }
+        return seeker
     }
 
     fun updatePlaceSeeker(placeSeeker: PlaceSeeker): PlaceSeeker {
@@ -40,7 +44,7 @@ class PlaceSeekerDao(private val database: Database) {
         params: PlaceSeekerQueryParams
     ): List<PlaceSeeker> {
         val offset = (page - 1) * pageSize
-        return database.placeSeekers.filterWithConditions { conditions ->
+        val seekers = database.placeSeekers.filterWithConditions { conditions ->
             with(params) {
                 userId?.let { conditions += it eq PlaceSeekers.userId }
                 destinationTypeList?.let { conditions += PlaceSeekers.destinationType inList it }
@@ -53,6 +57,18 @@ class PlaceSeekerDao(private val database: Database) {
                 statusList?.let { conditions += PlaceSeekers.status inList it }
             }
         }.drop(offset).take(pageSize).toList()
+        seekers.forEach { checkAndUpdateStatusIfExpired(it) }
+        return seekers
+    }
+
+    private fun checkAndUpdateStatusIfExpired(placeSeeker: PlaceSeeker) {
+        if (placeSeeker.status != PlaceSeekerStatus.Active) {
+            return
+        }
+        if (placeSeeker.seekerExpiryDate.isBefore(Instant.now())) {
+            placeSeeker.status = PlaceSeekerStatus.Expired
+            database.placeSeekers.update(placeSeeker)
+        }
     }
 }
 

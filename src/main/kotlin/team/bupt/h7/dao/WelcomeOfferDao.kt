@@ -1,9 +1,7 @@
 package team.bupt.h7.dao
 
 import org.ktorm.database.Database
-import org.ktorm.dsl.eq
-import org.ktorm.dsl.inList
-import org.ktorm.dsl.like
+import org.ktorm.dsl.*
 import org.ktorm.entity.*
 import org.ktorm.schema.*
 import team.bupt.h7.models.entities.WelcomeOffer
@@ -19,11 +17,15 @@ class WelcomeOfferDao(private val database: Database) {
         database.welcomeOffers.add(welcomeOffer)
 
         // to retrieve the auto-generated columns
-        return database.welcomeOffers.find { it.offerId eq welcomeOffer.offerId }!!
+        val offer = database.welcomeOffers.find { it.offerId eq welcomeOffer.offerId }!!
+        checkAndUpdateStatusIfExpired(offer)
+        return offer
     }
 
     fun getWelcomeOfferById(welcomeOfferId: Long): WelcomeOffer? {
-        return database.welcomeOffers.find { it.offerId eq welcomeOfferId }
+        val offer = database.welcomeOffers.find { it.offerId eq welcomeOfferId }
+        offer?.let { checkAndUpdateStatusIfExpired(it) }
+        return offer
     }
 
     fun updateWelcomeOffer(welcomeOffer: WelcomeOffer): WelcomeOffer {
@@ -40,7 +42,7 @@ class WelcomeOfferDao(private val database: Database) {
         params: WelcomeOfferQueryParams
     ): List<WelcomeOffer> {
         val offset = (page - 1) * pageSize
-        return database.welcomeOffers.filterWithConditions { conditions ->
+        val offers = database.welcomeOffers.filterWithConditions { conditions ->
             with(params) {
                 userId?.let { conditions += it eq WelcomeOffers.userId }
                 seekerId?.let { conditions += it eq WelcomeOffers.seekerId }
@@ -50,6 +52,31 @@ class WelcomeOfferDao(private val database: Database) {
                 statusList?.let { conditions += WelcomeOffers.status inList it }
             }
         }.drop(offset).take(pageSize).toList()
+        offers.forEach { checkAndUpdateStatusIfExpired(it) }
+        return offers
+    }
+
+    fun updateWelcomeOfferStatusBySeekerId(
+        seekerId: Long,
+        statusMap: Map<WelcomeOfferStatus, WelcomeOfferStatus>
+    ) {
+        // use DSL for efficiency
+        statusMap.forEach { (oldStatus, newStatus) ->
+            database.update(WelcomeOffers) {
+                where { it.seekerId eq seekerId and (it.status eq oldStatus) }
+                set(it.status, newStatus)
+            }
+        }
+    }
+
+    private fun checkAndUpdateStatusIfExpired(welcomeOffer: WelcomeOffer) {
+        if (welcomeOffer.status != WelcomeOfferStatus.Active) {
+            return
+        }
+        if (welcomeOffer.seeker.seekerExpiryDate.isBefore(Instant.now())) {
+            welcomeOffer.status = WelcomeOfferStatus.Expired
+            database.welcomeOffers.update(welcomeOffer)
+        }
     }
 }
 

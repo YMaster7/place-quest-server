@@ -16,6 +16,6 @@ interface WelcomeOffer : Entity<WelcomeOffer> {
 }
 
 enum class WelcomeOfferStatus {
-    Active, Accepted, Declined, Cancelled
+    Active, Accepted, Declined, Cancelled, Expired
 }
 

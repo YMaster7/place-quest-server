@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import team.bupt.h7.dao.PlaceSeekerDao
+import team.bupt.h7.dao.SeekPlaceDealDao
 import team.bupt.h7.dao.UserDao
 import team.bupt.h7.dao.WelcomeOfferDao
 import team.bupt.h7.database.DatabaseManager
@@ -27,7 +28,8 @@ val appModule = module {
     single { UserDao(get()) }
     single<UserService> { UserServiceImpl(get()) }
     single { PlaceSeekerDao(get()) }
-    single<PlaceSeekerService> { PlaceSeekerServiceImpl(get(), get()) }
+    single<PlaceSeekerService> { PlaceSeekerServiceImpl(get(), get(), get()) }
     single { WelcomeOfferDao(get()) }
-    single<WelcomeOfferService> { WelcomeOfferServiceImpl(get(), get(), get()) }
+    single<WelcomeOfferService> { WelcomeOfferServiceImpl(get(), get(), get(), get()) }
+    single { SeekPlaceDealDao(get()) }
 }

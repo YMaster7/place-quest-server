@@ -1,12 +1,12 @@
 package team.bupt.h7.services.impl
 
 import team.bupt.h7.dao.PlaceSeekerDao
+import team.bupt.h7.dao.SeekPlaceDealDao
 import team.bupt.h7.dao.UserDao
 import team.bupt.h7.dao.WelcomeOfferDao
-import team.bupt.h7.exceptions.PlaceSeekerNotFoundException
-import team.bupt.h7.exceptions.UserNotFoundException
-import team.bupt.h7.exceptions.UserNotOwnerException
-import team.bupt.h7.exceptions.WelcomeOfferNotFoundException
+import team.bupt.h7.exceptions.*
+import team.bupt.h7.models.entities.PlaceSeekerStatus
+import team.bupt.h7.models.entities.SeekPlaceDeal
 import team.bupt.h7.models.entities.WelcomeOffer
 import team.bupt.h7.models.entities.WelcomeOfferStatus
 import team.bupt.h7.models.requests.WelcomeOfferCreateRequest
@@ -17,7 +17,8 @@ import team.bupt.h7.services.WelcomeOfferService
 class WelcomeOfferServiceImpl(
     private val welcomeOfferDao: WelcomeOfferDao,
     private val userDao: UserDao,
-    private val placeSeekerDao: PlaceSeekerDao
+    private val placeSeekerDao: PlaceSeekerDao,
+    private val seekPlaceDealDao: SeekPlaceDealDao
 ) : WelcomeOfferService {
     override fun createWelcomeOffer(
         userId: Long,
@@ -53,6 +54,10 @@ class WelcomeOfferServiceImpl(
         if (welcomeOffer.user.userId != userId) {
             throw UserNotOwnerException()
         }
+        // check if the welcome offer is active
+        if (welcomeOffer.status != WelcomeOfferStatus.Active) {
+            throw WelcomeOfferNotActiveException()
+        }
 
         welcomeOffer.apply {
             request.offerDescription?.let { offerDescription = it }
@@ -66,6 +71,9 @@ class WelcomeOfferServiceImpl(
         if (welcomeOffer.user.userId != userId) {
             throw UserNotOwnerException()
         }
+        if (welcomeOffer.status != WelcomeOfferStatus.Active) {
+            throw WelcomeOfferNotActiveException()
+        }
         welcomeOffer.status = WelcomeOfferStatus.Cancelled
         return welcomeOfferDao.updateWelcomeOffer(welcomeOffer)
     }
@@ -76,5 +84,62 @@ class WelcomeOfferServiceImpl(
         params: WelcomeOfferQueryParams
     ): List<WelcomeOffer> {
         return welcomeOfferDao.queryWelcomeOffers(page, pageSize, params)
+    }
+
+    override fun acceptWelcomeOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer {
+        val offer = getAndValidateOffer(userId, welcomeOfferId)
+        val seeker = offer.seeker
+
+        // mark the offer as accepted
+        offer.status = WelcomeOfferStatus.Accepted
+        welcomeOfferDao.updateWelcomeOffer(offer)
+
+        // mark the seeker as completed
+        seeker.status = PlaceSeekerStatus.Completed
+        placeSeekerDao.updatePlaceSeeker(seeker)
+
+        // mark all other active offers as expired
+        welcomeOfferDao.updateWelcomeOfferStatusBySeekerId(
+            seeker.seekerId, mapOf(
+                WelcomeOfferStatus.Active to WelcomeOfferStatus.Expired
+            )
+        )
+
+        // make a deal
+        val deal = SeekPlaceDeal {
+            this.seeker = seeker
+            this.offer = offer
+            // TODO: calculate the price
+            seekerPrice = 200
+            offerPrice = 200
+        }
+        seekPlaceDealDao.createSeekPlaceDeal(deal)
+
+        return offer
+    }
+
+    override fun declineWelcomeOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer {
+        val offer = getAndValidateOffer(userId, welcomeOfferId)
+
+        offer.status = WelcomeOfferStatus.Declined
+        return welcomeOfferDao.updateWelcomeOffer(offer)
+    }
+
+    private fun getAndValidateOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer {
+        val offer = welcomeOfferDao.getWelcomeOfferById(welcomeOfferId)
+            ?: throw WelcomeOfferNotFoundException()
+        val seeker = offer.seeker
+
+        if (userId != seeker.user.userId) {
+            throw UserNotOwnerException()
+        }
+        if (offer.status != WelcomeOfferStatus.Active) {
+            throw WelcomeOfferNotActiveException()
+        }
+        if (seeker.status != PlaceSeekerStatus.Active) {
+            throw PlaceSeekerNotActiveException()
+        }
+
+        return offer
     }
 }

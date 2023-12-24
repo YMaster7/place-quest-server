@@ -3,11 +3,14 @@ package team.bupt.h7.services.impl
 import kotlinx.datetime.toJavaInstant
 import team.bupt.h7.dao.PlaceSeekerDao
 import team.bupt.h7.dao.UserDao
+import team.bupt.h7.dao.WelcomeOfferDao
+import team.bupt.h7.exceptions.PlaceSeekerNotActiveException
 import team.bupt.h7.exceptions.PlaceSeekerNotFoundException
 import team.bupt.h7.exceptions.UserNotFoundException
 import team.bupt.h7.exceptions.UserNotOwnerException
 import team.bupt.h7.models.entities.PlaceSeeker
 import team.bupt.h7.models.entities.PlaceSeekerStatus
+import team.bupt.h7.models.entities.WelcomeOfferStatus
 import team.bupt.h7.models.requests.PlaceSeekerCreateRequest
 import team.bupt.h7.models.requests.PlaceSeekerQueryParams
 import team.bupt.h7.models.requests.PlaceSeekerUpdateRequest
@@ -15,7 +18,8 @@ import team.bupt.h7.services.PlaceSeekerService
 
 class PlaceSeekerServiceImpl(
     private val placeSeekerDao: PlaceSeekerDao,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val welcomeOfferDao: WelcomeOfferDao
 ) : PlaceSeekerService {
     override fun createPlaceSeeker(userId: Long, request: PlaceSeekerCreateRequest): PlaceSeeker {
         val user = userDao.getUserById(userId)
@@ -49,6 +53,10 @@ class PlaceSeekerServiceImpl(
         if (placeSeeker.user.userId != userId) {
             throw UserNotOwnerException()
         }
+        // check if the place seeker is active
+        if (placeSeeker.status != PlaceSeekerStatus.Active) {
+            throw PlaceSeekerNotActiveException()
+        }
 
         placeSeeker.apply {
             request.destinationType?.let { destinationType = it }
@@ -62,13 +70,27 @@ class PlaceSeekerServiceImpl(
     }
 
     override fun cancelPlaceSeeker(userId: Long, placeSeekerId: Long): PlaceSeeker {
-        val placeSeeker = placeSeekerDao.getPlaceSeekerById(placeSeekerId)
+        val seeker = placeSeekerDao.getPlaceSeekerById(placeSeekerId)
             ?: throw PlaceSeekerNotFoundException()
-        if (placeSeeker.user.userId != userId) {
+        if (seeker.user.userId != userId) {
             throw UserNotOwnerException()
         }
-        placeSeeker.status = PlaceSeekerStatus.Cancelled
-        return placeSeekerDao.updatePlaceSeeker(placeSeeker)
+        if (seeker.status != PlaceSeekerStatus.Active) {
+            throw PlaceSeekerNotActiveException()
+        }
+
+        // mark the place seeker as cancelled
+        seeker.status = PlaceSeekerStatus.Cancelled
+        placeSeekerDao.updatePlaceSeeker(seeker)
+
+        // mark all the related welcome offers as expired
+        welcomeOfferDao.updateWelcomeOfferStatusBySeekerId(
+            placeSeekerId, mapOf(
+                WelcomeOfferStatus.Active to WelcomeOfferStatus.Expired
+            )
+        )
+
+        return seeker
     }
 
     override fun queryPlaceSeekers(
