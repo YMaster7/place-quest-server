@@ -8,11 +8,14 @@ import team.bupt.h7.models.entities.DocumentType
 import team.bupt.h7.models.entities.User
 import team.bupt.h7.models.entities.UserLevel
 import team.bupt.h7.models.entities.UserType
+import java.time.Instant
 
 class UserDao(private val database: Database) {
     fun createUser(user: User): User {
         database.users.add(user)
-        return user
+
+        // to retrieve the auto-generated columns
+        return database.users.find { it.userId eq user.userId }!!
     }
 
     fun getUserById(userId: Long): User? {
@@ -24,6 +27,9 @@ class UserDao(private val database: Database) {
     }
 
     fun updateUser(user: User): User {
+        // update user's updateTime
+        user.updateTime = Instant.now()
+
         database.users.update(user)
         return user
     }
@@ -52,7 +58,7 @@ object Users : Table<User>("users") {
     val region = varchar("region").bindTo { it.region }
     val district = varchar("district").bindTo { it.district }
     val country = varchar("country").bindTo { it.country }
-    val registrationTime = timestamp("registration_time").bindTo { it.registrationTime }
+    val createTime = timestamp("create_time").bindTo { it.createTime }
     val updateTime = timestamp("update_time").bindTo { it.updateTime }
 }
 

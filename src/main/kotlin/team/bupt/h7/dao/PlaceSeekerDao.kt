@@ -12,11 +12,14 @@ import team.bupt.h7.models.requests.PlaceSeekerQueryParams
 import team.bupt.h7.utils.filterWithConditions
 import team.bupt.h7.utils.inRange
 import team.bupt.h7.utils.toJavaInstantPair
+import java.time.Instant
 
 class PlaceSeekerDao(private val database: Database) {
     fun createPlaceSeeker(placeSeeker: PlaceSeeker): PlaceSeeker {
         database.placeSeekers.add(placeSeeker)
-        return placeSeeker
+
+        // to retrieve the auto-generated columns
+        return database.placeSeekers.find { it.seekerId eq placeSeeker.seekerId }!!
     }
 
     fun getPlaceSeekerById(placeSeekerId: Long): PlaceSeeker? {
@@ -24,6 +27,9 @@ class PlaceSeekerDao(private val database: Database) {
     }
 
     fun updatePlaceSeeker(placeSeeker: PlaceSeeker): PlaceSeeker {
+        // update placeSeeker's updateTime
+        placeSeeker.updateTime = Instant.now()
+
         database.placeSeekers.update(placeSeeker)
         return placeSeeker
     }

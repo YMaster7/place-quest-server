@@ -23,7 +23,7 @@ data class UserResponse(
     val region: String?,
     val district: String?,
     val country: String?,
-    val registrationTime: Instant?,
+    val createTime: Instant?,
     val updateTime: Instant?
 )
 
@@ -41,7 +41,7 @@ fun User.toAdminResponse() = UserResponse(
     region = region,
     district = district,
     country = country,
-    registrationTime = registrationTime.toKotlinInstant(),
+    createTime = createTime.toKotlinInstant(),
     updateTime = updateTime.toKotlinInstant()
 )
 
@@ -59,7 +59,7 @@ fun User.toSelfResponse() = UserResponse(
     region = region,
     district = district,
     country = country,
-    registrationTime = registrationTime.toKotlinInstant(),
+    createTime = createTime.toKotlinInstant(),
     updateTime = updateTime.toKotlinInstant()
 )
 
@@ -77,6 +77,6 @@ fun User.toBasicResponse() = UserResponse(
     region = null,
     district = null,
     country = null,
-    registrationTime = null,
+    createTime = null,
     updateTime = null
 )

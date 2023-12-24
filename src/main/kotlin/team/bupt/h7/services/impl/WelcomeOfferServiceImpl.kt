@@ -13,7 +13,6 @@ import team.bupt.h7.models.requests.WelcomeOfferCreateRequest
 import team.bupt.h7.models.requests.WelcomeOfferQueryParams
 import team.bupt.h7.models.requests.WelcomeOfferUpdateRequest
 import team.bupt.h7.services.WelcomeOfferService
-import java.time.Instant
 
 class WelcomeOfferServiceImpl(
     private val welcomeOfferDao: WelcomeOfferDao,
@@ -28,13 +27,10 @@ class WelcomeOfferServiceImpl(
             ?: throw UserNotFoundException()
         val seeker = placeSeekerDao.getPlaceSeekerById(request.seekerId)
             ?: throw PlaceSeekerNotFoundException()
-        val now = Instant.now()
         val welcomeOffer = WelcomeOffer {
             this.user = user
             this.seeker = seeker
             offerDescription = request.offerDescription
-            createTime = now
-            updateTime = now
             status = WelcomeOfferStatus.Active
         }
         return welcomeOfferDao.createWelcomeOffer(welcomeOffer)
@@ -58,10 +54,8 @@ class WelcomeOfferServiceImpl(
             throw UserNotOwnerException()
         }
 
-        val now = Instant.now()
         welcomeOffer.apply {
             request.offerDescription?.let { offerDescription = it }
-            updateTime = now
         }
         return welcomeOfferDao.updateWelcomeOffer(welcomeOffer)
     }

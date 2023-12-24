@@ -19,7 +19,7 @@ interface User : Entity<User> {
     var region: String
     var district: String
     var country: String
-    var registrationTime: Instant
+    var createTime: Instant
     var updateTime: Instant
 }
 

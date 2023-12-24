@@ -12,7 +12,6 @@ import team.bupt.h7.models.requests.PlaceSeekerCreateRequest
 import team.bupt.h7.models.requests.PlaceSeekerQueryParams
 import team.bupt.h7.models.requests.PlaceSeekerUpdateRequest
 import team.bupt.h7.services.PlaceSeekerService
-import java.time.Instant
 
 class PlaceSeekerServiceImpl(
     private val placeSeekerDao: PlaceSeekerDao,
@@ -21,7 +20,6 @@ class PlaceSeekerServiceImpl(
     override fun createPlaceSeeker(userId: Long, request: PlaceSeekerCreateRequest): PlaceSeeker {
         val user = userDao.getUserById(userId)
             ?: throw UserNotFoundException()
-        val now = Instant.now()
         val placeSeeker = PlaceSeeker {
             this.user = user
             destinationType = request.destinationType
@@ -29,8 +27,6 @@ class PlaceSeekerServiceImpl(
             seekerDescription = request.seekerDescription
             maxExpectedPrice = request.maxExpectedPrice
             seekerExpiryDate = request.seekerExpiryDate.toJavaInstant()
-            createTime = now
-            updateTime = now
             status = PlaceSeekerStatus.Active
         }
         return placeSeekerDao.createPlaceSeeker(placeSeeker)
@@ -54,14 +50,12 @@ class PlaceSeekerServiceImpl(
             throw UserNotOwnerException()
         }
 
-        val now = Instant.now()
         placeSeeker.apply {
             request.destinationType?.let { destinationType = it }
             request.seekerTitle?.let { seekerTitle = it }
             request.seekerDescription?.let { seekerDescription = it }
             request.maxExpectedPrice?.let { maxExpectedPrice = it }
             request.seekerExpiryDate?.let { seekerExpiryDate = it.toJavaInstant() }
-            updateTime = now
         }
 
         return placeSeekerDao.updatePlaceSeeker(placeSeeker)

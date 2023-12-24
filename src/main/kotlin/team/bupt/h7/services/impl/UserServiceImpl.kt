@@ -12,7 +12,6 @@ import team.bupt.h7.services.UserService
 import team.bupt.h7.utils.checkPassword
 import team.bupt.h7.utils.generateJwtToken
 import team.bupt.h7.utils.hashPassword
-import java.time.Instant
 
 
 class UserServiceImpl(private val userDao: UserDao) : UserService {
@@ -22,7 +21,6 @@ class UserServiceImpl(private val userDao: UserDao) : UserService {
         }
         val isAdmin = userDao.getUserCount() == 0
         val passwordHash = hashPassword(request.password)
-        val now = Instant.now()
         val user = User {
             username = request.username
             password = passwordHash
@@ -36,8 +34,6 @@ class UserServiceImpl(private val userDao: UserDao) : UserService {
             region = request.region ?: ""
             district = request.district ?: ""
             country = request.country ?: ""
-            registrationTime = now
-            updateTime = now
         }
         return userDao.createUser(user)
     }
@@ -74,7 +70,6 @@ class UserServiceImpl(private val userDao: UserDao) : UserService {
             request.bio?.let {
                 bio = it
             }
-            updateTime = Instant.now()
         }
 
         return userDao.updateUser(user)

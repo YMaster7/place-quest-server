@@ -12,11 +12,14 @@ import team.bupt.h7.models.requests.WelcomeOfferQueryParams
 import team.bupt.h7.utils.filterWithConditions
 import team.bupt.h7.utils.inRange
 import team.bupt.h7.utils.toJavaInstantPair
+import java.time.Instant
 
 class WelcomeOfferDao(private val database: Database) {
     fun createWelcomeOffer(welcomeOffer: WelcomeOffer): WelcomeOffer {
         database.welcomeOffers.add(welcomeOffer)
-        return welcomeOffer
+
+        // to retrieve the auto-generated columns
+        return database.welcomeOffers.find { it.offerId eq welcomeOffer.offerId }!!
     }
 
     fun getWelcomeOfferById(welcomeOfferId: Long): WelcomeOffer? {
@@ -24,6 +27,9 @@ class WelcomeOfferDao(private val database: Database) {
     }
 
     fun updateWelcomeOffer(welcomeOffer: WelcomeOffer): WelcomeOffer {
+        // update welcomeOffer's updateTime
+        welcomeOffer.updateTime = Instant.now()
+
         database.welcomeOffers.update(welcomeOffer)
         return welcomeOffer
     }
