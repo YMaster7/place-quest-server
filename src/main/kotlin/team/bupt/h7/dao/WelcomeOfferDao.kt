@@ -88,6 +88,9 @@ object WelcomeOffers : Table<WelcomeOffer>("welcome_offers") {
     val createTime = timestamp("create_time").bindTo { it.createTime }
     val updateTime = timestamp("update_time").bindTo { it.updateTime }
     val status = enum<WelcomeOfferStatus>("status").bindTo { it.status }
+
+    val user get() = userId.referenceTable as Users
+    val seeker get() = seekerId.referenceTable as PlaceSeekers
 }
 
 val Database.welcomeOffers get() = this.sequenceOf(WelcomeOffers)

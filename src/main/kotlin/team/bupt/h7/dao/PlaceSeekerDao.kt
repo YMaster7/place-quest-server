@@ -83,6 +83,8 @@ object PlaceSeekers : Table<PlaceSeeker>("place_seekers") {
     val createTime = timestamp("create_time").bindTo { it.createTime }
     val updateTime = timestamp("update_time").bindTo { it.updateTime }
     val status = enum<PlaceSeekerStatus>("status").bindTo { it.status }
+
+    val user get() = userId.referenceTable as Users
 }
 
 val Database.placeSeekers get() = this.sequenceOf(PlaceSeekers)

@@ -38,6 +38,7 @@ class SeekPlaceDealDao(private val database: Database) {
                 seekerPriceRange?.let { conditions += SeekPlaceDeals.seekerPrice inRange it }
                 offerPriceRange?.let { conditions += SeekPlaceDeals.offerPrice inRange it }
                 createTimeRange?.let { conditions += SeekPlaceDeals.createTime inRange it.toJavaInstantPair() }
+                seekerUserRegion?.let { conditions += SeekPlaceDeals.seeker.user.region eq it }
             }
         }.drop(offset).take(pageSize).toList()
     }
@@ -50,6 +51,9 @@ object SeekPlaceDeals : Table<SeekPlaceDeal>("seek_place_deals") {
     val seekerPrice = int("seeker_price").bindTo { it.seekerPrice }
     val offerPrice = int("offer_price").bindTo { it.offerPrice }
     val createTime = timestamp("create_time").bindTo { it.createTime }
+
+    val seeker get() = seekerId.referenceTable as PlaceSeekers
+    val offer get() = offerId.referenceTable as WelcomeOffers
 }
 
 val Database.seekPlaceDeals get() = this.sequenceOf(SeekPlaceDeals)

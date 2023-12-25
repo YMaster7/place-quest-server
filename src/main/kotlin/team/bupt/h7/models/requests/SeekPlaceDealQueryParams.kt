@@ -9,5 +9,6 @@ data class SeekPlaceDealQueryParams(
     val offerId: Long? = null,
     val seekerPriceRange: Pair<Int?, Int?>? = null,
     val offerPriceRange: Pair<Int?, Int?>? = null,
-    val createTimeRange: Pair<Instant?, Instant?>? = null
+    val createTimeRange: Pair<Instant?, Instant?>? = null,
+    val seekerUserRegion: String? = null,
 )

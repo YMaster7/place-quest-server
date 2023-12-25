@@ -2,7 +2,6 @@ package team.bupt.h7.services.impl
 
 import team.bupt.h7.dao.UserDao
 import team.bupt.h7.exceptions.*
-import team.bupt.h7.models.entities.DocumentType
 import team.bupt.h7.models.entities.User
 import team.bupt.h7.models.entities.UserLevel
 import team.bupt.h7.models.entities.UserType
@@ -25,15 +24,15 @@ class UserServiceImpl(private val userDao: UserDao) : UserService {
             username = request.username
             password = passwordHash
             userType = if (isAdmin) UserType.Admin else UserType.Normal
-            realName = request.realName ?: ""
-            documentType = request.documentType ?: DocumentType.IdCard
-            documentNumber = request.documentNumber ?: "0000"
-            phoneNumber = request.phoneNumber ?: "0000"
+            realName = request.realName
+            documentType = request.documentType
+            documentNumber = request.documentNumber
+            phoneNumber = request.phoneNumber
             userLevel = UserLevel.Regular
             bio = request.bio ?: ""
-            region = request.region ?: ""
-            district = request.district ?: ""
-            country = request.country ?: ""
+            region = request.region
+            district = request.district
+            country = request.country
         }
         return userDao.createUser(user)
     }

@@ -6,11 +6,13 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.get
+import team.bupt.h7.exceptions.InvalidUrlParametersException
 import team.bupt.h7.models.entities.UserType
 import team.bupt.h7.models.requests.UserCreateRequest
 import team.bupt.h7.models.requests.UserLoginRequest
 import team.bupt.h7.models.requests.UserUpdateRequest
 import team.bupt.h7.models.responses.LoginResponse
+import team.bupt.h7.models.responses.toBasicResponse
 import team.bupt.h7.models.responses.toSelfResponse
 import team.bupt.h7.services.UserService
 import team.bupt.h7.utils.getUserIdFromToken
@@ -48,7 +50,12 @@ fun Route.userRouting(userService: UserService) {
                 call.respond(updatedUser.toSelfResponse())
             }
 
-            // TODO: find other users
+            get("/{id}") {
+                val userId = call.parameters["id"]?.toLong()
+                    ?: throw InvalidUrlParametersException()
+                val user = userService.getUserById(userId)
+                call.respond(user.toBasicResponse())
+            }
         }
     }
 

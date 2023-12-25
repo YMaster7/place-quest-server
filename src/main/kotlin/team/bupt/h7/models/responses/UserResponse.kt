@@ -74,9 +74,9 @@ fun User.toBasicResponse() = UserResponse(
     phoneNumber = null,
     userLevel = userLevel,
     bio = bio,
-    region = null,
-    district = null,
-    country = null,
+    region = region,
+    district = district,
+    country = country,
     createTime = null,
     updateTime = null
 )
