@@ -38,6 +38,22 @@ fun Route.welcomeOfferRouting(welcomeOfferService: WelcomeOfferService) {
                 call.respond(welcomeOffer.toResponse())
             }
 
+            post("{id}/accept") {
+                val userId = call.getUserIdFromToken()
+                val id = call.parameters["id"]?.toLong()
+                    ?: throw InvalidUrlParametersException()
+                val welcomeOffer = welcomeOfferService.acceptWelcomeOffer(userId, id)
+                call.respond(welcomeOffer.toResponse())
+            }
+
+            post("{id}/decline") {
+                val userId = call.getUserIdFromToken()
+                val id = call.parameters["id"]?.toLong()
+                    ?: throw InvalidUrlParametersException()
+                val welcomeOffer = welcomeOfferService.declineWelcomeOffer(userId, id)
+                call.respond(welcomeOffer.toResponse())
+            }
+
             get("/mine") {
                 val userId = call.getUserIdFromToken()
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
