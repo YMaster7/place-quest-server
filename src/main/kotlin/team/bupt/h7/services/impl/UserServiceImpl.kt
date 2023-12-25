@@ -9,7 +9,6 @@ import team.bupt.h7.models.requests.UserCreateRequest
 import team.bupt.h7.models.requests.UserUpdateRequest
 import team.bupt.h7.services.UserService
 import team.bupt.h7.utils.checkPassword
-import team.bupt.h7.utils.generateJwtToken
 import team.bupt.h7.utils.hashPassword
 
 
@@ -37,13 +36,13 @@ class UserServiceImpl(private val userDao: UserDao) : UserService {
         return userDao.createUser(user)
     }
 
-    override fun login(userId: Long, password: String): String {
+    override fun login(userId: Long, password: String): Boolean {
         val user = userDao.getUserById(userId)
             ?: throw UserNotFoundException()
         if (!checkPassword(password, user.password)) {
             throw InvalidPasswordException()
         }
-        return generateJwtToken(user.userId, user.userType)
+        return true
     }
 
     override fun updateUser(userId: Long, request: UserUpdateRequest): User {

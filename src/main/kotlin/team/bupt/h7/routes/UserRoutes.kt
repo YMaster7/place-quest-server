@@ -14,11 +14,12 @@ import team.bupt.h7.models.requests.UserUpdateRequest
 import team.bupt.h7.models.responses.LoginResponse
 import team.bupt.h7.models.responses.toBasicResponse
 import team.bupt.h7.models.responses.toSelfResponse
+import team.bupt.h7.services.AuthService
 import team.bupt.h7.services.UserService
 import team.bupt.h7.utils.getUserIdFromToken
 import team.bupt.h7.utils.roleCheck
 
-fun Route.userRouting(userService: UserService) {
+fun Route.userRouting(userService: UserService, authService: AuthService) {
     route("/users") {
         post {
             val request = call.receive<UserCreateRequest>()
@@ -29,11 +30,13 @@ fun Route.userRouting(userService: UserService) {
         post("/login") {
             val request = call.receive<UserLoginRequest>()
             val user = userService.getUserByUsername(request.username)
-            val token = userService.login(user.userId, request.password)
-            val response = LoginResponse(
-                token = token, userType = user.userType
-            )
-            call.respond(response)
+            if (userService.login(user.userId, request.password)) {
+                val response = LoginResponse(
+                    token = authService.generateJwtToken(user.userId, user.userType),
+                    userType = user.userType
+                )
+                call.respond(response)
+            }
         }
 
         authenticate {

@@ -1,11 +1,19 @@
 version: "3.9"
 services:
-  postgres:
-    image: postgres:14-alpine
+  backend:
+    image: place-quest-server
     ports:
-      - "5432:5432"
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - JWT_SECRET=secret
+      - DB_HOST=db
+
+  db:
+    image: postgres:14-alpine
     volumes:
-      - ./sql/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./sql/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

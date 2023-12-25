@@ -11,7 +11,7 @@ import team.bupt.h7.routes.welcomeOfferRouting
 fun Application.configureRouting() {
     routing {
         route("/api/v1") {
-            userRouting(get())
+            userRouting(get(), get())
             placeSeekerRouting(get())
             welcomeOfferRouting(get())
             seekPlaceDealRouting(get())

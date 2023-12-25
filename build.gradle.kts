@@ -38,10 +38,17 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koinVersion")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("io.ktor:ktor-server-status-pages:2.2.4")
     implementation("io.ktor:ktor-server-cors:2.2.4")
     implementation("com.zaxxer:HikariCP:5.1.0")
     testImplementation("io.ktor:ktor-server-tests-jvm:2.2.4")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
+}
+
+ktor {
+    docker {
+        localImageName.set("place-quest-server")
+        imageTag.set("0.0.1-preview")
+        jreVersion.set(JavaVersion.VERSION_11)
+    }
 }

@@ -7,7 +7,7 @@ import team.bupt.h7.models.requests.UserUpdateRequest
 
 interface UserService {
     fun createUser(request: UserCreateRequest): User
-    fun login(userId: Long, password: String): String
+    fun login(userId: Long, password: String): Boolean
     fun getUserById(userId: Long): User
     fun getUserByUsername(username: String): User
     fun updateUser(userId: Long, request: UserUpdateRequest): User
