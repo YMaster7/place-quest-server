@@ -13,33 +13,33 @@ import java.time.format.DateTimeParseException
 
 fun Parameters.toPlaceSeekerQueryParams(): PlaceSeekerQueryParams {
     return PlaceSeekerQueryParams(
-        userId = this["userId"]?.toLongOrNull(),
-        destinationTypeList = this.getAll("destinationTypeList"),
-        seekerTitlePattern = this["seekerTitlePattern"],
-        seekerDescriptionPattern = this["seekerDescriptionPattern"],
-        maxExpectedPriceRange = this["maxExpectedPriceRange"]?.paramToIntRange(),
-        seekerExpiryDateRange = this["seekerExpiryDateRange"]?.paramToInstantRange(),
-        createdAtRange = this["createdAtRange"]?.paramToInstantRange(),
-        updatedAtRange = this["updatedAtRange"]?.paramToInstantRange(),
-        statusList = this.getAll("statusList")?.map { PlaceSeekerStatus.valueOf(it) }
+        userId = this["user_id"]?.toLongOrNull(),
+        destinationTypeList = this.getAll("destination_type_list"),
+        seekerTitlePattern = this["seeker_title_pattern"],
+        seekerDescriptionPattern = this["seeker_description_pattern"],
+        maxExpectedPriceRange = this["max_expected_price_range"]?.paramToIntRange(),
+        seekerExpiryDateRange = this["seeker_expiry_date_range"]?.paramToInstantRange(),
+        createdAtRange = this["created_at_range"]?.paramToInstantRange(),
+        updatedAtRange = this["updated_at_range"]?.paramToInstantRange(),
+        statusList = this.getAll("status_list")?.map { PlaceSeekerStatus.valueOf(it) }
     )
 }
 
 fun Parameters.toWelcomeOfferQueryParams(): WelcomeOfferQueryParams {
     return WelcomeOfferQueryParams(
-        userId = this["userId"]?.toLongOrNull(),
-        seekerId = this["seekerId"]?.toLongOrNull(),
-        offerDescriptionPattern = this["offerDescriptionPattern"],
-        createTimeRange = this["createTimeRange"]?.paramToInstantRange(),
-        updateTimeRange = this["updateTimeRange"]?.paramToInstantRange(),
-        statusList = this.getAll("statusList")?.map { WelcomeOfferStatus.valueOf(it) }
+        userId = this["user_id"]?.toLongOrNull(),
+        seekerId = this["seeker_id"]?.toLongOrNull(),
+        offerDescriptionPattern = this["offer_description_pattern"],
+        createTimeRange = this["create_time_range"]?.paramToInstantRange(),
+        updateTimeRange = this["update_time_range"]?.paramToInstantRange(),
+        statusList = this.getAll("status_list")?.map { WelcomeOfferStatus.valueOf(it) }
     )
 }
 
 fun Parameters.toSeekPlaceDealStatisticQueryParams(): SeekPlaceDealStatisticQueryParams {
-    val startMonth = this["startMonth"]
+    val startMonth = this["start_month"]
         ?: throw InvalidUrlParametersException()
-    val endMonth = this["endMonth"]
+    val endMonth = this["end_month"]
         ?: throw InvalidUrlParametersException()
     try {
         YearMonth.parse(startMonth)
