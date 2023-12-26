@@ -14,5 +14,6 @@ data class PlaceSeekerQueryParams(
     val seekerExpiryDateRange: Pair<Instant?, Instant?>? = null,
     val createdAtRange: Pair<Instant?, Instant?>? = null,
     val updatedAtRange: Pair<Instant?, Instant?>? = null,
-    val statusList: List<PlaceSeekerStatus>? = null
+    val statusList: List<PlaceSeekerStatus>? = null,
+    val userRegion: String? = null,
 )

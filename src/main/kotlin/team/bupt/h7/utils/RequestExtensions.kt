@@ -21,7 +21,8 @@ fun Parameters.toPlaceSeekerQueryParams(): PlaceSeekerQueryParams {
         seekerExpiryDateRange = this["seeker_expiry_date_range"]?.paramToInstantRange(),
         createdAtRange = this["created_at_range"]?.paramToInstantRange(),
         updatedAtRange = this["updated_at_range"]?.paramToInstantRange(),
-        statusList = this.getAll("status_list")?.map { PlaceSeekerStatus.valueOf(it) }
+        statusList = this.getAll("status_list")?.map { PlaceSeekerStatus.valueOf(it) },
+        userRegion = this["user_region"]
     )
 }
 

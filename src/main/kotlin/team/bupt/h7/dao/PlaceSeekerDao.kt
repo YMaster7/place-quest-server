@@ -55,6 +55,7 @@ class PlaceSeekerDao(private val database: Database) {
                 createdAtRange?.let { conditions += PlaceSeekers.createTime inRange it.toJavaInstantPair() }
                 updatedAtRange?.let { conditions += PlaceSeekers.updateTime inRange it.toJavaInstantPair() }
                 statusList?.let { conditions += PlaceSeekers.status inList it }
+                userRegion?.let { conditions += PlaceSeekers.user.region eq it }
             }
         }.drop(offset).take(pageSize).toList()
         seekers.forEach { checkAndUpdateStatusIfExpired(it) }
