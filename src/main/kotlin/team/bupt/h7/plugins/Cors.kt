@@ -9,5 +9,8 @@ fun Application.configureCors() {
         // TODO: config CORS for production
         anyHost()
         allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Authorization)
+        allowMethod(HttpMethod.Patch)
+        allowMethod(HttpMethod.Delete)
     }
 }
