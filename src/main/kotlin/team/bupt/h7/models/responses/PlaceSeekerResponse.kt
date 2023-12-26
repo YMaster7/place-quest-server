@@ -10,6 +10,7 @@ import team.bupt.h7.models.entities.PlaceSeekerStatus
 data class PlaceSeekerResponse(
     val seekerId: Long?,
     val userId: Long?,
+    val username: String?,
     val destinationType: String?,
     val seekerTitle: String?,
     val seekerDescription: String?,
@@ -23,6 +24,7 @@ data class PlaceSeekerResponse(
 fun PlaceSeeker.toResponse() = PlaceSeekerResponse(
     seekerId = seekerId,
     userId = user.userId,
+    username = user.username,
     destinationType = destinationType,
     seekerTitle = seekerTitle,
     seekerDescription = seekerDescription,
