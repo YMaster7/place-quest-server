@@ -1,5 +1,6 @@
 package team.bupt.h7.services.impl
 
+import team.bupt.h7.dao.TransactionDao
 import team.bupt.h7.dao.UserDao
 import team.bupt.h7.exceptions.*
 import team.bupt.h7.models.entities.User
@@ -12,28 +13,32 @@ import team.bupt.h7.utils.checkPassword
 import team.bupt.h7.utils.hashPassword
 
 
-class UserServiceImpl(private val userDao: UserDao) : UserService {
+class UserServiceImpl(private val userDao: UserDao, private val transactionDao: TransactionDao) :
+    UserService {
     override fun createUser(request: UserCreateRequest): User {
-        if (userDao.getUserByUsername(request.username) != null) {
-            throw UserAlreadyExistsException()
+        val user = transactionDao.transaction {
+            if (userDao.getUserByUsername(request.username) != null) {
+                throw UserAlreadyExistsException()
+            }
+            val isAdmin = userDao.getUserCount() == 0
+            val passwordHash = hashPassword(request.password)
+            val user = User {
+                username = request.username
+                password = passwordHash
+                userType = if (isAdmin) UserType.Admin else UserType.Normal
+                realName = request.realName
+                documentType = request.documentType
+                documentNumber = request.documentNumber
+                phoneNumber = request.phoneNumber
+                userLevel = UserLevel.Regular
+                bio = request.bio ?: ""
+                region = request.region
+                district = request.district
+                country = request.country
+            }
+            userDao.createUser(user)
         }
-        val isAdmin = userDao.getUserCount() == 0
-        val passwordHash = hashPassword(request.password)
-        val user = User {
-            username = request.username
-            password = passwordHash
-            userType = if (isAdmin) UserType.Admin else UserType.Normal
-            realName = request.realName
-            documentType = request.documentType
-            documentNumber = request.documentNumber
-            phoneNumber = request.phoneNumber
-            userLevel = UserLevel.Regular
-            bio = request.bio ?: ""
-            region = request.region
-            district = request.district
-            country = request.country
-        }
-        return userDao.createUser(user)
+        return user
     }
 
     override fun login(userId: Long, password: String): Boolean {

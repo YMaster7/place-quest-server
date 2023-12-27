@@ -1,9 +1,6 @@
 package team.bupt.h7.services.impl
 
-import team.bupt.h7.dao.PlaceSeekerDao
-import team.bupt.h7.dao.SeekPlaceDealDao
-import team.bupt.h7.dao.UserDao
-import team.bupt.h7.dao.WelcomeOfferDao
+import team.bupt.h7.dao.*
 import team.bupt.h7.exceptions.*
 import team.bupt.h7.models.entities.PlaceSeekerStatus
 import team.bupt.h7.models.entities.SeekPlaceDeal
@@ -18,7 +15,8 @@ class WelcomeOfferServiceImpl(
     private val welcomeOfferDao: WelcomeOfferDao,
     private val userDao: UserDao,
     private val placeSeekerDao: PlaceSeekerDao,
-    private val seekPlaceDealDao: SeekPlaceDealDao
+    private val seekPlaceDealDao: SeekPlaceDealDao,
+    private val transactionDao: TransactionDao
 ) : WelcomeOfferService {
     override fun createWelcomeOffer(
         userId: Long,
@@ -47,35 +45,41 @@ class WelcomeOfferServiceImpl(
         welcomeOfferId: Long,
         request: WelcomeOfferUpdateRequest
     ): WelcomeOffer {
-        val welcomeOffer = welcomeOfferDao.getWelcomeOfferById(welcomeOfferId)
-            ?: throw WelcomeOfferNotFoundException()
+        val offer = transactionDao.transaction {
+            val welcomeOffer = welcomeOfferDao.getWelcomeOfferById(welcomeOfferId)
+                ?: throw WelcomeOfferNotFoundException()
 
-        // check if the user is the owner of the welcome offer
-        if (welcomeOffer.user.userId != userId) {
-            throw UserNotOwnerException()
-        }
-        // check if the welcome offer is active
-        if (welcomeOffer.status != WelcomeOfferStatus.Active) {
-            throw WelcomeOfferNotActiveException()
-        }
+            // check if the user is the owner of the welcome offer
+            if (welcomeOffer.user.userId != userId) {
+                throw UserNotOwnerException()
+            }
+            // check if the welcome offer is active
+            if (welcomeOffer.status != WelcomeOfferStatus.Active) {
+                throw WelcomeOfferNotActiveException()
+            }
 
-        welcomeOffer.apply {
-            request.offerDescription?.let { offerDescription = it }
+            welcomeOffer.apply {
+                request.offerDescription?.let { offerDescription = it }
+            }
+            welcomeOfferDao.updateWelcomeOffer(welcomeOffer)
         }
-        return welcomeOfferDao.updateWelcomeOffer(welcomeOffer)
+        return offer
     }
 
     override fun cancelWelcomeOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer {
-        val welcomeOffer = welcomeOfferDao.getWelcomeOfferById(welcomeOfferId)
-            ?: throw WelcomeOfferNotFoundException()
-        if (welcomeOffer.user.userId != userId) {
-            throw UserNotOwnerException()
+        val offer = transactionDao.transaction {
+            val welcomeOffer = welcomeOfferDao.getWelcomeOfferById(welcomeOfferId)
+                ?: throw WelcomeOfferNotFoundException()
+            if (welcomeOffer.user.userId != userId) {
+                throw UserNotOwnerException()
+            }
+            if (welcomeOffer.status != WelcomeOfferStatus.Active) {
+                throw WelcomeOfferNotActiveException()
+            }
+            welcomeOffer.status = WelcomeOfferStatus.Cancelled
+            welcomeOfferDao.updateWelcomeOffer(welcomeOffer)
         }
-        if (welcomeOffer.status != WelcomeOfferStatus.Active) {
-            throw WelcomeOfferNotActiveException()
-        }
-        welcomeOffer.status = WelcomeOfferStatus.Cancelled
-        return welcomeOfferDao.updateWelcomeOffer(welcomeOffer)
+        return offer
     }
 
     override fun queryWelcomeOffers(
@@ -87,42 +91,47 @@ class WelcomeOfferServiceImpl(
     }
 
     override fun acceptWelcomeOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer {
-        val offer = getAndValidateOffer(userId, welcomeOfferId)
-        val seeker = offer.seeker
+        val offer = transactionDao.transaction {
+            val offer = getAndValidateOffer(userId, welcomeOfferId)
+            val seeker = offer.seeker
 
-        // mark the offer as accepted
-        offer.status = WelcomeOfferStatus.Accepted
-        welcomeOfferDao.updateWelcomeOffer(offer)
+            // mark the offer as accepted
+            offer.status = WelcomeOfferStatus.Accepted
+            welcomeOfferDao.updateWelcomeOffer(offer)
 
-        // mark the seeker as completed
-        seeker.status = PlaceSeekerStatus.Completed
-        placeSeekerDao.updatePlaceSeeker(seeker)
+            // mark the seeker as completed
+            seeker.status = PlaceSeekerStatus.Completed
+            placeSeekerDao.updatePlaceSeeker(seeker)
 
-        // mark all other active offers as expired
-        welcomeOfferDao.updateWelcomeOfferStatusBySeekerId(
-            seeker.seekerId, mapOf(
-                WelcomeOfferStatus.Active to WelcomeOfferStatus.Expired
+            // mark all other active offers as expired
+            welcomeOfferDao.updateWelcomeOfferStatusBySeekerId(
+                seeker.seekerId, mapOf(
+                    WelcomeOfferStatus.Active to WelcomeOfferStatus.Expired
+                )
             )
-        )
 
-        // make a deal
-        val deal = SeekPlaceDeal {
-            this.seeker = seeker
-            this.offer = offer
-            // TODO: calculate the price
-            seekerPrice = 200
-            offerPrice = 200
+            // make a deal
+            val deal = SeekPlaceDeal {
+                this.seeker = seeker
+                this.offer = offer
+                // TODO: calculate the price
+                seekerPrice = 200
+                offerPrice = 200
+            }
+            seekPlaceDealDao.createSeekPlaceDeal(deal)
+            offer
         }
-        seekPlaceDealDao.createSeekPlaceDeal(deal)
-
         return offer
     }
 
     override fun declineWelcomeOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer {
-        val offer = getAndValidateOffer(userId, welcomeOfferId)
+        val offer = transactionDao.transaction {
+            val offer = getAndValidateOffer(userId, welcomeOfferId)
 
-        offer.status = WelcomeOfferStatus.Declined
-        return welcomeOfferDao.updateWelcomeOffer(offer)
+            offer.status = WelcomeOfferStatus.Declined
+            welcomeOfferDao.updateWelcomeOffer(offer)
+        }
+        return offer
     }
 
     private fun getAndValidateOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer {

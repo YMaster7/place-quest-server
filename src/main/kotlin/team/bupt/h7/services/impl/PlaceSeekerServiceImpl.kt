@@ -2,6 +2,7 @@ package team.bupt.h7.services.impl
 
 import kotlinx.datetime.toJavaInstant
 import team.bupt.h7.dao.PlaceSeekerDao
+import team.bupt.h7.dao.TransactionDao
 import team.bupt.h7.dao.UserDao
 import team.bupt.h7.dao.WelcomeOfferDao
 import team.bupt.h7.exceptions.PlaceSeekerNotActiveException
@@ -19,7 +20,8 @@ import team.bupt.h7.services.PlaceSeekerService
 class PlaceSeekerServiceImpl(
     private val placeSeekerDao: PlaceSeekerDao,
     private val userDao: UserDao,
-    private val welcomeOfferDao: WelcomeOfferDao
+    private val welcomeOfferDao: WelcomeOfferDao,
+    private val transactionDao: TransactionDao
 ) : PlaceSeekerService {
     override fun createPlaceSeeker(userId: Long, request: PlaceSeekerCreateRequest): PlaceSeeker {
         val user = userDao.getUserById(userId)
@@ -46,49 +48,55 @@ class PlaceSeekerServiceImpl(
         placeSeekerId: Long,
         request: PlaceSeekerUpdateRequest
     ): PlaceSeeker {
-        val placeSeeker = placeSeekerDao.getPlaceSeekerById(placeSeekerId)
-            ?: throw PlaceSeekerNotFoundException()
+        val seeker = transactionDao.transaction {
+            val placeSeeker = placeSeekerDao.getPlaceSeekerById(placeSeekerId)
+                ?: throw PlaceSeekerNotFoundException()
 
-        // check if the user is the owner of the place seeker
-        if (placeSeeker.user.userId != userId) {
-            throw UserNotOwnerException()
-        }
-        // check if the place seeker is active
-        if (placeSeeker.status != PlaceSeekerStatus.Active) {
-            throw PlaceSeekerNotActiveException()
+            // check if the user is the owner of the place seeker
+            if (placeSeeker.user.userId != userId) {
+                throw UserNotOwnerException()
+            }
+            // check if the place seeker is active
+            if (placeSeeker.status != PlaceSeekerStatus.Active) {
+                throw PlaceSeekerNotActiveException()
+            }
+
+            placeSeeker.apply {
+                request.destinationType?.let { destinationType = it }
+                request.seekerTitle?.let { seekerTitle = it }
+                request.seekerDescription?.let { seekerDescription = it }
+                request.maxExpectedPrice?.let { maxExpectedPrice = it }
+                request.seekerExpiryDate?.let { seekerExpiryDate = it.toJavaInstant() }
+            }
+            placeSeekerDao.updatePlaceSeeker(placeSeeker)
         }
 
-        placeSeeker.apply {
-            request.destinationType?.let { destinationType = it }
-            request.seekerTitle?.let { seekerTitle = it }
-            request.seekerDescription?.let { seekerDescription = it }
-            request.maxExpectedPrice?.let { maxExpectedPrice = it }
-            request.seekerExpiryDate?.let { seekerExpiryDate = it.toJavaInstant() }
-        }
-
-        return placeSeekerDao.updatePlaceSeeker(placeSeeker)
+        return seeker
     }
 
     override fun cancelPlaceSeeker(userId: Long, placeSeekerId: Long): PlaceSeeker {
-        val seeker = placeSeekerDao.getPlaceSeekerById(placeSeekerId)
-            ?: throw PlaceSeekerNotFoundException()
-        if (seeker.user.userId != userId) {
-            throw UserNotOwnerException()
-        }
-        if (seeker.status != PlaceSeekerStatus.Active) {
-            throw PlaceSeekerNotActiveException()
-        }
+        val seeker = transactionDao.transaction {
+            val seeker = placeSeekerDao.getPlaceSeekerById(placeSeekerId)
+                ?: throw PlaceSeekerNotFoundException()
+            if (seeker.user.userId != userId) {
+                throw UserNotOwnerException()
+            }
+            if (seeker.status != PlaceSeekerStatus.Active) {
+                throw PlaceSeekerNotActiveException()
+            }
 
-        // mark the place seeker as cancelled
-        seeker.status = PlaceSeekerStatus.Cancelled
-        placeSeekerDao.updatePlaceSeeker(seeker)
+            // mark the place seeker as cancelled
+            seeker.status = PlaceSeekerStatus.Cancelled
+            placeSeekerDao.updatePlaceSeeker(seeker)
 
-        // mark all the related welcome offers as expired
-        welcomeOfferDao.updateWelcomeOfferStatusBySeekerId(
-            placeSeekerId, mapOf(
-                WelcomeOfferStatus.Active to WelcomeOfferStatus.Expired
+            // mark all the related welcome offers as expired
+            welcomeOfferDao.updateWelcomeOfferStatusBySeekerId(
+                placeSeekerId, mapOf(
+                    WelcomeOfferStatus.Active to WelcomeOfferStatus.Expired
+                )
             )
-        )
+            seeker
+        }
 
         return seeker
     }
