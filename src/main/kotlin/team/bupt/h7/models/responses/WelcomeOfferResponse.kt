@@ -10,6 +10,7 @@ import team.bupt.h7.models.entities.WelcomeOfferStatus
 data class WelcomeOfferResponse(
     val offerId: Long?,
     val userId: Long?,
+    val username: String?,
     val seekerId: Long?,
     val offerDescription: String?,
     val createTime: Instant?,
@@ -20,6 +21,7 @@ data class WelcomeOfferResponse(
 fun WelcomeOffer.toResponse() = WelcomeOfferResponse(
     offerId = offerId,
     userId = user.userId,
+    username = user.username,
     seekerId = seeker.seekerId,
     offerDescription = offerDescription,
     createTime = createTime.toKotlinInstant(),
