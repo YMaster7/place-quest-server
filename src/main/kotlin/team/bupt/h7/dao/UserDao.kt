@@ -44,7 +44,11 @@ class UserDao(private val database: Database) {
     }
 }
 
-object Users : Table<User>("users") {
+open class Users(alias: String?) : Table<User>("users", alias) {
+    companion object : Users(null)
+
+    override fun aliased(alias: String) = Users(alias)
+
     val userId = long("user_id").primaryKey().bindTo { it.userId }
     val username = varchar("username").bindTo { it.username }
     val password = varchar("password").bindTo { it.password }
