@@ -10,6 +10,7 @@ import team.bupt.h7.models.requests.WelcomeOfferCreateRequest
 import team.bupt.h7.models.requests.WelcomeOfferUpdateRequest
 import team.bupt.h7.models.responses.toResponse
 import team.bupt.h7.services.WelcomeOfferService
+import team.bupt.h7.utils.PageStatWrapper
 import team.bupt.h7.utils.getUserIdFromToken
 import team.bupt.h7.utils.toWelcomeOfferQueryParams
 
@@ -24,11 +25,12 @@ fun Route.welcomeOfferRouting(welcomeOfferService: WelcomeOfferService) {
                 pageSize,
                 params
             )
-            call.respond(mapOf(
-                "page" to page,
-                "page_size" to pageSize,
-                "page_num" to pageNum,
-                "offers" to welcomeOffers.map { it.toResponse() }
+            call.respond(
+                PageStatWrapper(
+                    page,
+                    pageSize,
+                    pageNum,
+                    welcomeOffers.map { it.toResponse() }
             ))
         }
 
@@ -72,11 +74,12 @@ fun Route.welcomeOfferRouting(welcomeOfferService: WelcomeOfferService) {
                 val paramsWithUserId = params.copy(userId = userId)
                 val (welcomeOffers, pageNum) =
                     welcomeOfferService.queryWelcomeOffers(page, pageSize, paramsWithUserId)
-                call.respond(mapOf(
-                    "page" to page,
-                    "page_size" to pageSize,
-                    "page_num" to pageNum,
-                    "offers" to welcomeOffers.map { it.toResponse() }
+                call.respond(
+                    PageStatWrapper(
+                        page,
+                        pageSize,
+                        pageNum,
+                        welcomeOffers.map { it.toResponse() }
                 ))
             }
 

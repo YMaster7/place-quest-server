@@ -10,6 +10,7 @@ import team.bupt.h7.models.requests.PlaceSeekerCreateRequest
 import team.bupt.h7.models.requests.PlaceSeekerUpdateRequest
 import team.bupt.h7.models.responses.toResponse
 import team.bupt.h7.services.PlaceSeekerService
+import team.bupt.h7.utils.PageStatWrapper
 import team.bupt.h7.utils.getUserIdFromToken
 import team.bupt.h7.utils.toPlaceSeekerQueryParams
 
@@ -24,11 +25,12 @@ fun Route.placeSeekerRouting(placeSeekerService: PlaceSeekerService) {
                 pageSize,
                 params
             )
-            call.respond(mapOf(
-                "page" to page,
-                "page_size" to pageSize,
-                "page_num" to pageNum,
-                "seekers" to placeSeekers.map { it.toResponse() }
+            call.respond(
+                PageStatWrapper(
+                    page,
+                    pageSize,
+                    pageNum,
+                    placeSeekers.map { it.toResponse() }
             ))
         }
 
@@ -56,11 +58,12 @@ fun Route.placeSeekerRouting(placeSeekerService: PlaceSeekerService) {
                 val paramsWithUserId = params.copy(userId = userId)
                 val (placeSeekers, pageNum) =
                     placeSeekerService.queryPlaceSeekers(page, pageSize, paramsWithUserId)
-                call.respond(mapOf(
-                    "page" to page,
-                    "page_size" to pageSize,
-                    "page_num" to pageNum,
-                    "seekers" to placeSeekers.map { it.toResponse() }
+                call.respond(
+                    PageStatWrapper(
+                        page,
+                        pageSize,
+                        pageNum,
+                        placeSeekers.map { it.toResponse() }
                 ))
             }
 
