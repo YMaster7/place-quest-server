@@ -19,8 +19,17 @@ fun Route.welcomeOfferRouting(welcomeOfferService: WelcomeOfferService) {
             val page = call.request.queryParameters["page"]?.toInt() ?: 1
             val pageSize = call.request.queryParameters["page_size"]?.toInt() ?: 10
             val params = call.request.queryParameters.toWelcomeOfferQueryParams()
-            val welcomeOffers = welcomeOfferService.queryWelcomeOffers(page, pageSize, params)
-            call.respond(welcomeOffers.map { it.toResponse() })
+            val (welcomeOffers, pageNum) = welcomeOfferService.queryWelcomeOffers(
+                page,
+                pageSize,
+                params
+            )
+            call.respond(mapOf(
+                "page" to page,
+                "page_size" to pageSize,
+                "page_num" to pageNum,
+                "offers" to welcomeOffers.map { it.toResponse() }
+            ))
         }
 
         get("/{id}") {
@@ -61,9 +70,14 @@ fun Route.welcomeOfferRouting(welcomeOfferService: WelcomeOfferService) {
                 val params = call.request.queryParameters.toWelcomeOfferQueryParams()
 
                 val paramsWithUserId = params.copy(userId = userId)
-                val welcomeOffers =
+                val (welcomeOffers, pageNum) =
                     welcomeOfferService.queryWelcomeOffers(page, pageSize, paramsWithUserId)
-                call.respond(welcomeOffers.map { it.toResponse() })
+                call.respond(mapOf(
+                    "page" to page,
+                    "page_size" to pageSize,
+                    "page_num" to pageNum,
+                    "offers" to welcomeOffers.map { it.toResponse() }
+                ))
             }
 
             patch("/{id}") {

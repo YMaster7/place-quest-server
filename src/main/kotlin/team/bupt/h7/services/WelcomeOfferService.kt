@@ -22,7 +22,8 @@ interface WelcomeOfferService {
         page: Int,
         pageSize: Int,
         params: WelcomeOfferQueryParams
-    ): List<WelcomeOffer>
+    ): Pair<List<WelcomeOffer>, Int>
+
     fun acceptWelcomeOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer
     fun declineWelcomeOffer(userId: Long, welcomeOfferId: Long): WelcomeOffer
 }

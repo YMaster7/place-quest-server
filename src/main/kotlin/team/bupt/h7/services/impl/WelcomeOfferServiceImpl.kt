@@ -86,7 +86,7 @@ class WelcomeOfferServiceImpl(
         page: Int,
         pageSize: Int,
         params: WelcomeOfferQueryParams
-    ): List<WelcomeOffer> {
+    ): Pair<List<WelcomeOffer>, Int> {
         return welcomeOfferDao.queryWelcomeOffers(page, pageSize, params)
     }
 

@@ -19,5 +19,5 @@ interface PlaceSeekerService {
         page: Int,
         pageSize: Int,
         params: PlaceSeekerQueryParams
-    ): List<PlaceSeeker>
+    ): Pair<List<PlaceSeeker>, Int>
 }

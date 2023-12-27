@@ -42,7 +42,7 @@ class PlaceSeekerDao(private val database: Database) {
         page: Int,
         pageSize: Int,
         params: PlaceSeekerQueryParams
-    ): List<PlaceSeeker> {
+    ): Pair<List<PlaceSeeker>, Int> {
         val offset = (page - 1) * pageSize
         val seekers = database.placeSeekers.filterWithConditions { conditions ->
             with(params) {
@@ -57,9 +57,11 @@ class PlaceSeekerDao(private val database: Database) {
                 statusList?.let { conditions += PlaceSeekers.status inList it }
                 userRegion?.let { conditions += PlaceSeekers.user.region eq it }
             }
-        }.drop(offset).take(pageSize).toList()
-        seekers.forEach { checkAndUpdateStatusIfExpired(it) }
-        return seekers
+        }
+        val pageNumber = (seekers.count() + pageSize - 1) / pageSize
+        val pagedSeekers = seekers.drop(offset).take(pageSize).toList()
+        pagedSeekers.forEach { checkAndUpdateStatusIfExpired(it) }
+        return pagedSeekers to pageNumber
     }
 
     private fun checkAndUpdateStatusIfExpired(placeSeeker: PlaceSeeker) {

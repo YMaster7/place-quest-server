@@ -19,8 +19,17 @@ fun Route.placeSeekerRouting(placeSeekerService: PlaceSeekerService) {
             val page = call.request.queryParameters["page"]?.toInt() ?: 1
             val pageSize = call.request.queryParameters["page_size"]?.toInt() ?: 10
             val params = call.request.queryParameters.toPlaceSeekerQueryParams()
-            val placeSeekers = placeSeekerService.queryPlaceSeekers(page, pageSize, params)
-            call.respond(placeSeekers.map { it.toResponse() })
+            val (placeSeekers, pageNum) = placeSeekerService.queryPlaceSeekers(
+                page,
+                pageSize,
+                params
+            )
+            call.respond(mapOf(
+                "page" to page,
+                "page_size" to pageSize,
+                "page_num" to pageNum,
+                "seekers" to placeSeekers.map { it.toResponse() }
+            ))
         }
 
         get("/{id}") {
@@ -45,9 +54,14 @@ fun Route.placeSeekerRouting(placeSeekerService: PlaceSeekerService) {
                 val params = call.request.queryParameters.toPlaceSeekerQueryParams()
 
                 val paramsWithUserId = params.copy(userId = userId)
-                val placeSeekers =
+                val (placeSeekers, pageNum) =
                     placeSeekerService.queryPlaceSeekers(page, pageSize, paramsWithUserId)
-                call.respond(placeSeekers.map { it.toResponse() })
+                call.respond(mapOf(
+                    "page" to page,
+                    "page_size" to pageSize,
+                    "page_num" to pageNum,
+                    "seekers" to placeSeekers.map { it.toResponse() }
+                ))
             }
 
             patch("/{id}") {

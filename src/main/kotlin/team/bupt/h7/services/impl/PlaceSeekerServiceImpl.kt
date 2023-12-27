@@ -105,7 +105,7 @@ class PlaceSeekerServiceImpl(
         page: Int,
         pageSize: Int,
         params: PlaceSeekerQueryParams
-    ): List<PlaceSeeker> {
+    ): Pair<List<PlaceSeeker>, Int> {
         return placeSeekerDao.queryPlaceSeekers(page, pageSize, params)
     }
 }

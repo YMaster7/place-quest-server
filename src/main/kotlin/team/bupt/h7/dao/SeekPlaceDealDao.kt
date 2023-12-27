@@ -29,9 +29,9 @@ class SeekPlaceDealDao(private val database: Database) {
         page: Int,
         pageSize: Int,
         params: SeekPlaceDealQueryParams
-    ): List<SeekPlaceDeal> {
+    ): Pair<List<SeekPlaceDeal>, Int> {
         val offset = (page - 1) * pageSize
-        return database.seekPlaceDeals.filterWithConditions { conditions ->
+        val deals = database.seekPlaceDeals.filterWithConditions { conditions ->
             with(params) {
                 seekerId?.let { conditions += it eq SeekPlaceDeals.seekerId }
                 offerId?.let { conditions += it eq SeekPlaceDeals.offerId }
@@ -40,7 +40,10 @@ class SeekPlaceDealDao(private val database: Database) {
                 createTimeRange?.let { conditions += SeekPlaceDeals.createTime inRange it.toJavaInstantPair() }
                 seekerUserRegion?.let { conditions += SeekPlaceDeals.seeker.user.region eq it }
             }
-        }.drop(offset).take(pageSize).toList()
+        }
+        val pageNumber = (deals.count() + pageSize - 1) / pageSize
+        val pagedDeals = deals.drop(offset).take(pageSize).toList()
+        return pagedDeals to pageNumber
     }
 }
 

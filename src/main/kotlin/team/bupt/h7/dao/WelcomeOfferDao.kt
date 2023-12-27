@@ -40,7 +40,7 @@ class WelcomeOfferDao(private val database: Database) {
         page: Int,
         pageSize: Int,
         params: WelcomeOfferQueryParams
-    ): List<WelcomeOffer> {
+    ): Pair<List<WelcomeOffer>, Int> {
         val offset = (page - 1) * pageSize
         val offers = database.welcomeOffers.filterWithConditions { conditions ->
             with(params) {
@@ -51,9 +51,11 @@ class WelcomeOfferDao(private val database: Database) {
                 updateTimeRange?.let { conditions += WelcomeOffers.updateTime inRange it.toJavaInstantPair() }
                 statusList?.let { conditions += WelcomeOffers.status inList it }
             }
-        }.drop(offset).take(pageSize).toList()
-        offers.forEach { checkAndUpdateStatusIfExpired(it) }
-        return offers
+        }
+        val pageNumber = (offers.count() + pageSize - 1) / pageSize
+        val pagedOffers = offers.drop(offset).take(pageSize).toList()
+        pagedOffers.forEach { checkAndUpdateStatusIfExpired(it) }
+        return pagedOffers to pageNumber
     }
 
     fun updateWelcomeOfferStatusBySeekerId(
