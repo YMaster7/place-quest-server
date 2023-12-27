@@ -13,15 +13,16 @@ fun Application.configureDependencyInjection() {
         single { environment }
         single { DatabaseManager.create() }
         single { UserDao(get()) }
-        single<UserService> { UserServiceImpl(get()) }
+        single<UserService> { UserServiceImpl(get(), get()) }
         single { PlaceSeekerDao(get()) }
-        single<PlaceSeekerService> { PlaceSeekerServiceImpl(get(), get(), get()) }
+        single<PlaceSeekerService> { PlaceSeekerServiceImpl(get(), get(), get(), get()) }
         single { WelcomeOfferDao(get()) }
-        single<WelcomeOfferService> { WelcomeOfferServiceImpl(get(), get(), get(), get()) }
+        single<WelcomeOfferService> { WelcomeOfferServiceImpl(get(), get(), get(), get(), get()) }
         single { SeekPlaceDealDao(get()) }
         single { SeekPlaceDealStatisticDao(get()) }
         single<SeekPlaceDealService> { SeekPlaceDealServiceImpl(get()) }
         single<AuthService> { AuthServiceImpl(get()) }
+        single { TransactionDao(get()) }
     }
 
     install(Koin) {
