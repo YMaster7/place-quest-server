@@ -10,7 +10,7 @@ fun Application.configureRateLimit() {
         global {
             rateLimiter(limit = 200, refillPeriod = 60.seconds)
             requestKey {
-                it.request.origin.remoteAddress
+                it.request.origin.remoteHost
             }
         }
     }
