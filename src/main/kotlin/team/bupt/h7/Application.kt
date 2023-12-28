@@ -14,4 +14,5 @@ fun Application.module() {
     configureSecurity()
     configureRouting()
     configureCors()
+    configureRateLimit()
 }
