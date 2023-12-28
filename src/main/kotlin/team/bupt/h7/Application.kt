@@ -15,4 +15,5 @@ fun Application.module() {
     configureRouting()
     configureCors()
     configureRateLimit()
+    configureForwardedHeader()
 }
