@@ -2,7 +2,7 @@ drop table if exists users cascade;
 create table users
 (
     user_id         bigserial primary key,
-    username        varchar(255) not null,
+    username varchar(255) not null unique,
     password        varchar(255) not null,
     user_type       varchar(255) not null,
     real_name       varchar(255) not null,
@@ -22,15 +22,15 @@ drop table if exists place_seekers cascade;
 create table place_seekers
 (
     seeker_id          bigserial primary key,
-    user_id     bigint references users (user_id) on delete cascade,
+    user_id        bigint references users (user_id) on delete cascade,
     destination_type   varchar(255) not null,
     seeker_title       varchar(255) not null,
     seeker_description text         not null,
     attachment_url varchar(255) not null default '',
     max_expected_price int          not null,
     seeker_expiry_date timestamp    not null,
-    create_time timestamp not null default now(),
-    update_time timestamp not null default now(),
+    create_time    timestamp    not null default now(),
+    update_time    timestamp    not null default now(),
     status             varchar(255) not null
 );
 
@@ -38,12 +38,12 @@ drop table if exists welcome_offers cascade;
 create table welcome_offers
 (
     offer_id          bigserial primary key,
-    user_id     bigint references users (user_id) on delete cascade,
-    seeker_id   bigint references place_seekers (seeker_id) on delete cascade,
+    user_id        bigint references users (user_id) on delete cascade,
+    seeker_id      bigint references place_seekers (seeker_id) on delete cascade,
     offer_description text         not null,
     attachment_url varchar(255) not null default '',
-    create_time timestamp not null default now(),
-    update_time timestamp not null default now(),
+    create_time    timestamp    not null default now(),
+    update_time    timestamp    not null default now(),
     status            varchar(255) not null
 );
 
