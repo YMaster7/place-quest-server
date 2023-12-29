@@ -15,14 +15,14 @@ import team.bupt.h7.models.requests.SeekPlaceDealStatisticQueryParams
 
 class SeekPlaceDealStatisticDao(private val database: Database) {
     fun querySeekPlaceDealStatistics(params: SeekPlaceDealStatisticQueryParams): List<SeekPlaceDealStatistic> {
-        val query = database.seekPlaceDealStatistics
+        var query = database.seekPlaceDealStatistics
             .filter { it.yearMonth greaterEq params.startMonth }
             .filter { it.yearMonth lessEq params.endMonth }
         params.region?.let {
-            query.filter { it.region eq params.region }
+            query = query.filter { it.region eq params.region }
         }
         params.destinationType?.let {
-            query.filter { it.destinationType eq params.destinationType }
+            query = query.filter { it.destinationType eq params.destinationType }
         }
         return query.toList()
     }
