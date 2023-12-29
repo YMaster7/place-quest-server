@@ -30,7 +30,7 @@ class WelcomeOfferServiceImpl(
             this.user = user
             this.seeker = seeker
             offerDescription = request.offerDescription
-            attachmentUrl = request.attachmentUrl ?: ""
+            attachmentUrl = request.attachmentUrl
             status = WelcomeOfferStatus.Active
         }
         return welcomeOfferDao.createWelcomeOffer(welcomeOffer)

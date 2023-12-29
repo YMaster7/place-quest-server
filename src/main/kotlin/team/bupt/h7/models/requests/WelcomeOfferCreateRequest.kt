@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class WelcomeOfferCreateRequest(
     val seekerId: Long,
     val offerDescription: String,
-    val attachmentUrl: String?
+    val attachmentUrl: String = ""
 )
