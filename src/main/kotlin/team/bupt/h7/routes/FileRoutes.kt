@@ -75,5 +75,5 @@ fun uploadToCloudflareR2(file: File): String {
         file.toPath()
     )
 
-    return "$publicUrl/$bucketName/${file.name}"
+    return "$publicUrl/${file.name}"
 }
