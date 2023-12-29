@@ -26,7 +26,7 @@ create table place_seekers
     destination_type   varchar(255) not null,
     seeker_title       varchar(255) not null,
     seeker_description text         not null,
-    attachment_url varchar(255) not null,
+    attachment_url varchar(255) not null default '',
     max_expected_price int          not null,
     seeker_expiry_date timestamp    not null,
     create_time timestamp not null default now(),
@@ -41,7 +41,7 @@ create table welcome_offers
     user_id     bigint references users (user_id) on delete cascade,
     seeker_id   bigint references place_seekers (seeker_id) on delete cascade,
     offer_description text         not null,
-    attachment_url varchar(255) not null,
+    attachment_url varchar(255) not null default '',
     create_time timestamp not null default now(),
     update_time timestamp not null default now(),
     status            varchar(255) not null
