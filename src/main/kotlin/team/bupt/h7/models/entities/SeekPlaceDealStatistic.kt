@@ -7,6 +7,7 @@ interface SeekPlaceDealStatistic : Entity<SeekPlaceDealStatistic> {
 
     val yearMonth: String
     val region: String
+    val destinationType: String
     val totalDeals: Int
     val totalBrokerage: Int
 }

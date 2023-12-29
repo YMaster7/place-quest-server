@@ -52,7 +52,8 @@ fun Parameters.toSeekPlaceDealStatisticQueryParams(): SeekPlaceDealStatisticQuer
     return SeekPlaceDealStatisticQueryParams(
         startMonth = startMonth,
         endMonth = endMonth,
-        region = this["region"]
+        region = this["region"],
+        destinationType = this["destination_type"]
     )
 }
 

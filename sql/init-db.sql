@@ -60,9 +60,10 @@ drop view if exists v_seek_place_deal_statistics;
 create view v_seek_place_deal_statistics as
 select to_char(d.create_time, 'YYYY-MM')   as year_month,
        u.region,
+       s.destination_type,
        count(d.deal_id)                    as total_deals,
        sum(d.seeker_price + d.offer_price) as total_brokerage
 from seek_place_deals d
          join place_seekers s on d.seeker_id = s.seeker_id
          join users u on s.user_id = u.user_id
-group by year_month, u.region;
+group by year_month, u.region, s.destination_type;

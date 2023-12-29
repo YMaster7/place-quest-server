@@ -7,4 +7,5 @@ data class SeekPlaceDealStatisticQueryParams(
     val startMonth: String,
     val endMonth: String,
     val region: String? = null,
+    val destinationType: String? = null
 )

@@ -21,6 +21,9 @@ class SeekPlaceDealStatisticDao(private val database: Database) {
         params.region?.let {
             query.filter { it.region eq params.region }
         }
+        params.destinationType?.let {
+            query.filter { it.destinationType eq params.destinationType }
+        }
         return query.toList()
     }
 }
@@ -28,6 +31,7 @@ class SeekPlaceDealStatisticDao(private val database: Database) {
 object SeekPlaceDealStatistics : Table<SeekPlaceDealStatistic>("v_seek_place_deal_statistics") {
     val yearMonth = varchar("year_month").bindTo { it.yearMonth }
     val region = varchar("region").bindTo { it.region }
+    val destinationType = varchar("destination_type").bindTo { it.destinationType }
     val totalDeals = int("total_deals").bindTo { it.totalDeals }
     val totalBrokerage = int("total_brokerage").bindTo { it.totalBrokerage }
 }
