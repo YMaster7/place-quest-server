@@ -87,6 +87,7 @@ object WelcomeOffers : Table<WelcomeOffer>("welcome_offers") {
     val userId = long("user_id").references(Users) { it.user }
     val seekerId = long("seeker_id").references(PlaceSeekers) { it.seeker }
     val offerDescription = varchar("offer_description").bindTo { it.offerDescription }
+    val attachmentUrl = varchar("attachment_url").bindTo { it.attachmentUrl }
     val createTime = timestamp("create_time").bindTo { it.createTime }
     val updateTime = timestamp("update_time").bindTo { it.updateTime }
     val status = enum<WelcomeOfferStatus>("status").bindTo { it.status }

@@ -81,6 +81,7 @@ object PlaceSeekers : Table<PlaceSeeker>("place_seekers") {
     val destinationType = varchar("destination_type").bindTo { it.destinationType }
     val seekerTitle = varchar("seeker_title").bindTo { it.seekerTitle }
     val seekerDescription = varchar("seeker_description").bindTo { it.seekerDescription }
+    val attachmentUrl = varchar("attachment_url").bindTo { it.attachmentUrl }
     val maxExpectedPrice = int("max_expected_price").bindTo { it.maxExpectedPrice }
     val seekerExpiryDate = timestamp("seeker_expiry_date").bindTo { it.seekerExpiryDate }
     val createTime = timestamp("create_time").bindTo { it.createTime }

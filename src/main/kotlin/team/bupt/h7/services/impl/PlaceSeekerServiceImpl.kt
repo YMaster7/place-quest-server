@@ -31,6 +31,7 @@ class PlaceSeekerServiceImpl(
             destinationType = request.destinationType
             seekerTitle = request.seekerTitle
             seekerDescription = request.seekerDescription
+            attachmentUrl = request.attachmentUrl ?: ""
             maxExpectedPrice = request.maxExpectedPrice
             seekerExpiryDate = request.seekerExpiryDate.toJavaInstant()
             status = PlaceSeekerStatus.Active

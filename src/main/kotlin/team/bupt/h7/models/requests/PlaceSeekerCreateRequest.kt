@@ -8,6 +8,7 @@ data class PlaceSeekerCreateRequest(
     val destinationType: String,
     val seekerTitle: String,
     val seekerDescription: String,
+    val attachmentUrl: String?,
     val maxExpectedPrice: Int,
     val seekerExpiryDate: Instant
 )

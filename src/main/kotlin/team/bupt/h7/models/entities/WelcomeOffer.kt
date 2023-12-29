@@ -10,6 +10,7 @@ interface WelcomeOffer : Entity<WelcomeOffer> {
     var user: User
     var seeker: PlaceSeeker
     var offerDescription: String
+    var attachmentUrl: String
     var createTime: Instant
     var updateTime: Instant
     var status: WelcomeOfferStatus

@@ -11,6 +11,7 @@ interface PlaceSeeker : Entity<PlaceSeeker> {
     var destinationType: String
     var seekerTitle: String
     var seekerDescription: String
+    var attachmentUrl: String
     var maxExpectedPrice: Int
     var seekerExpiryDate: Instant
     var createTime: Instant
