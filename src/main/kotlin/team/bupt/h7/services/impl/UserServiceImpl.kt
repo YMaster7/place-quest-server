@@ -89,4 +89,8 @@ class UserServiceImpl(private val userDao: UserDao, private val transactionDao: 
     override fun queryUsers(page: Int, pageSize: Int): List<User> {
         return userDao.queryUsers(page, pageSize)
     }
+
+    override fun getUserCount(): Int {
+        return userDao.getUserCount()
+    }
 }

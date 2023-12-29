@@ -12,4 +12,5 @@ interface UserService {
     fun getUserByUsername(username: String): User
     fun updateUser(userId: Long, request: UserUpdateRequest): User
     fun queryUsers(page: Int, pageSize: Int): List<User>
+    fun getUserCount(): Int
 }

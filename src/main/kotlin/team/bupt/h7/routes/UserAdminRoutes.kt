@@ -16,6 +16,11 @@ fun Route.userAdminRouting(userService: UserService) {
             call.respond(users.map { it.toAdminResponse() })
         }
 
+        get("/count") {
+            val count = userService.getUserCount()
+            call.respond(count)
+        }
+
         get("/{id}") {
             val userId = call.parameters["id"]?.toLong()
                 ?: throw InvalidUrlParametersException()
