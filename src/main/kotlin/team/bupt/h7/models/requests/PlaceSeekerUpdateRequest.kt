@@ -8,6 +8,7 @@ data class PlaceSeekerUpdateRequest(
     val destinationType: String? = null,
     val seekerTitle: String? = null,
     val seekerDescription: String? = null,
+    val attachmentUrl: String? = null,
     val maxExpectedPrice: Int? = null,
     val seekerExpiryDate: Instant? = null,
 )

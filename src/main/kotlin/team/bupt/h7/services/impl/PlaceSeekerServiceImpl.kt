@@ -66,6 +66,7 @@ class PlaceSeekerServiceImpl(
                 request.destinationType?.let { destinationType = it }
                 request.seekerTitle?.let { seekerTitle = it }
                 request.seekerDescription?.let { seekerDescription = it }
+                request.attachmentUrl?.let { attachmentUrl = it }
                 request.maxExpectedPrice?.let { maxExpectedPrice = it }
                 request.seekerExpiryDate?.let { seekerExpiryDate = it.toJavaInstant() }
             }
